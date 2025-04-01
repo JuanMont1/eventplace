@@ -20,6 +20,24 @@ const EventSection = () => {
       title: 'Taller de Programación',
       date: '2025-06-10',
       description: 'Aprende a desarrollar aplicaciones web con expertos.',
+    }, {
+
+    id: 4,
+      title: 'Concierto Sinfónico',
+      date: '2025-04-15',
+      description: 'Disfruta de una noche mágica con música sinfónica en vivo.',
+    },
+    {
+      id: 5,
+      title: 'Feria de Emprendimiento',
+      date: '2025-05-01',
+      description: 'Explora ideas innovadoras y conecta con emprendedores.',
+    },
+    {
+      id: 6,
+      title: 'Taller de Programación',
+      date: '2025-06-10',
+      description: 'Aprende a desarrollar aplicaciones web con expertos.',
     },
   ];
 

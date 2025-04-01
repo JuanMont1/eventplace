@@ -22,6 +22,7 @@ const events = {
         { title: "Evento 5", date: "2025-01-15", description: "Descripción del evento 5" },
         { title: "Evento 5", date: "2025-01-15", description: "Descripción del evento 5" },
         { title: "Evento 5", date: "2025-01-15", description: "Descripción del evento 5" },
+        { title: "Evento 5", date: "2025-01-15", description: "Descripción del evento 5" },
       ],
       Febrero: [
         { title: "Evento prueba febrero", date: "2025-02-15", description: "Descripción del evento 5" },

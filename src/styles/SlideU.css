@@ -6,6 +6,7 @@
     height: auto;  
     overflow: hidden;  
     position: relative;
+    border-bottom: 3px solid green;
   }
   
   .slick-slide img {
