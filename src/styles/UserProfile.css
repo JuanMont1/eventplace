@@ -1,104 +1,209 @@
-body {
-    font-family: Arial, sans-serif;
+/* Aplica el reset de márgenes y paddings a todos los elementos */
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body, html {
+    height: 100%;
+    width: 100%;
+    font-family: Arial, sans-serif;
     background-color: #f9f9f9;
   }
   
+  /* Contenedor principal */
   .profile-container {
-    max-width: 800px;
-    margin: auto;
-    margin-top: 80px;
-    margin-bottom: 40px;
-    border: 2px solid #075820;
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #f9f9f9;
   }
   
+  /* Encabezado del perfil */
   .profile-header {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    background: #034e14;
-    color: white;
-    padding: 10px;
+    margin-bottom: 30px;
   }
   
-  .logo {
-    height: 50px;
-    margin-right: 15px;
+  .profile-header .logo {
+    width: 80px;
+    margin-bottom: 10px;
   }
   
+  .profile-header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* Información del usuario */
   .profile-content {
-    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    flex: 1; /* Hace que el contenido se expanda para llenar el espacio */
   }
   
   .user-info {
-    text-align: center;
-  }
-  
-  .avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-bottom: 10px;
-  }
-  
-  .events-section {
     display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: flex-start; 
-    text-align: center; 
-    margin-top: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    text-align: center;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
   
+  .user-info .avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .user-info h2 {
+    font-size: 22px;
+    color: #333;
+  }
+  
+  .user-info p {
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .user-info button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .user-info button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Sección de eventos */
+  .events-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; 
+    gap: 20px; 
+  }
+  
+  .events-section h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+  }
   
   .event-card {
-    background: #f1f1f1;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #f4f4f4;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
   
-  .event-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  .event-card .rating {
+    font-size: 20px;
+    color: #f39c12;
+    margin: 10px 0;
   }
   
-  .attended {
-    border-left: 5px solid #4caf50;
+  .event-card h4 {
+    font-size: 18px;
+    margin-bottom: 8px;
   }
   
-  .upcoming {
-    border-left: 5px solid #ff9800;
+  .event-card p {
+    font-size: 16px;
+    color: #555;
   }
   
-  .rating {
-    font-size: 14px;
-    color: #ff9800;
-  }
-  
+  /* Botón de navegación */
   footer {
-    text-align: right;
-    padding: 10px 20px;
+    text-align: center;
+    padding: 20px;
   }
   
   .prev-button {
-    background: #08612a;
+    background-color: #28a745;
     color: white;
+    padding: 10px 15px;
     border: none;
-    padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background-color 0.3s ease;
   }
   
   .prev-button:hover {
-    background: #0056b3;
+    background-color: #218838;
   }
   
+  /* Estilos Responsivos */
+  @media (max-width: 768px) {
+    .profile-container {
+      padding: 10px;
+    }
+  
+    .user-info .avatar {
+      width: 100px;
+      height: 100px;
+    }
+  
+    .profile-header h1 {
+      font-size: 20px;
+    }
+  
+    .profile-content {
+      gap: 20px;
+    }
+  
+    .event-card {
+      padding: 10px;
+    }
+  
+    .events-section h3 {
+      font-size: 18px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .user-info h2 {
+      font-size: 18px;
+    }
+  
+    .user-info p {
+      font-size: 14px;
+    }
+  
+    .event-card h4 {
+      font-size: 16px;
+    }
+  
+    .event-card p {
+      font-size: 14px;
+    }
+  
+    .prev-button {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+  }
   
