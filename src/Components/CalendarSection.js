@@ -6,10 +6,10 @@ import events from '../Components/DatosEventos';
 console.log(events);
 
 const CalendarSection = () => {
-  const [selectedYear, setSelectedYear] = useState(2025); // Año seleccionado
-  const [selectedMonth, setSelectedMonth] = useState("Enero"); // Mes seleccionado
+  const [selectedYear, setSelectedYear] = useState(2025); 
+  const [selectedMonth, setSelectedMonth] = useState("Enero"); 
 
-  const years = [2020, 2021, 2022, 2023, 2024, 2025];
+  const years = [2020, 2021, 2022, 2023, 2024, 2025] ;
   const months = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", 
     "Septiembre", "Octubre", "Noviembre", "Diciembre"
@@ -17,7 +17,7 @@ const CalendarSection = () => {
 
   // Función para manejar el clic en el mes
   const handleMonthClick = (month) => {
-    setSelectedMonth(month); // Establece el mes seleccionado
+    setSelectedMonth(month); 
   };
 
   // Obtener eventos del año y mes seleccionados
@@ -56,7 +56,7 @@ const CalendarSection = () => {
           <div
             className="month"
             key={month}
-            onClick={() => handleMonthClick(month)} // Al hacer clic, actualizamos el mes seleccionado
+            onClick={() => handleMonthClick(month)}
           >
             <FaCalendarAlt className="calendar-icon" />
             <span>{month}</span>

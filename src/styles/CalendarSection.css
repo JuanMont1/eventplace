@@ -5,6 +5,7 @@
   text-align: center;
   border-bottom: 3px solid green;
   min-height: 400px;
+  margin-top: 250px;
 }
 
 /* Cabecera del calendario */
@@ -136,7 +137,10 @@ h2 {
   flex-wrap: wrap;
   gap: 20px;
   padding-top: 40px;
+  justify-content: center; 
+  align-items: center; 
 }
+
 
 /* Tarjetas de eventos */
 .event-card {
@@ -146,6 +150,7 @@ h2 {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   width: 250px;
+  height: auto;
   margin: 10px;
 }
 
@@ -163,3 +168,8 @@ h2 {
 .event-card p {
   margin: 5px 0;
 }
+
+
+
+
+

@@ -1,15 +1,21 @@
+/* Estilos generales de la barra de navegación */
 .custom-navbar {
     width: 100%;
-    min-height: 250px;
+    height: 200px;
     background: url("../archivos/img/fondo.jpg") top/cover no-repeat;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
     display: flex;
     align-items: flex-start;
     padding: 20px 40px;
-}
-
-/* Capa oscura */
-.custom-navbar::before {
+    color: white;
+    transition: height 0.5s ease-in-out, background 0.5s ease-in-out;
+  }
+  
+  /* Capa oscura encima de la imagen */
+  .custom-navbar::before {
     content: "";
     position: absolute;
     top: 0;
@@ -18,154 +24,156 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.4);
     z-index: 1;
-}
-
-/* Todo el contenido encima del fondo */
-.custom-navbar * {
+  }
+  
+  /* Todo el contenido encima del fondo */
+  .custom-navbar * {
     position: relative;
     z-index: 2;
     color: white !important;
-}
-
-/* Contenedor principal de la barra */
-.navbar-container {
+  }
+  
+  /* Contenedor principal de la barra */
+  .navbar-container {
     display: flex;
     width: 100%;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-}
-
-/* Logo + Texto */
-.left-section {
+  }
+  
+  /* Logo + Texto */
+  .left-section {
     display: flex;
     align-items: center;
     position: fixed;
     top: 20px;
     left: 20px;
-    padding-left: 0;
-    margin-left: 0;
-}
-
-.navbar-logo {
-    height: 80px;
-    width: auto;
-    padding-left: 10px;
-}
-
-.navbar-title, .event-type-link {
-    font-size: 14px;
-    font-weight: bold;
-    text-transform: uppercase;
-    margin-left: 15px;
-}
-
-/* Menú de navegación */
-.nav-links-container {
+  }
+  
+  .navbar-logo {
+    width: 200px;
+    height: auto;
+    transition: width 0.5s ease, height 0.5s ease;
+  }
+  
+  /* Diseño de los enlaces de navegación */
+  .nav-links-container {
     display: flex;
     align-items: center;
     gap: 30px;
-}
-
-.nav-links {
+  }
+  
+  .nav-links {
     display: flex;
     align-items: center;
     gap: 25px;
     font-size: 16px;
     font-weight: bold;
     text-transform: uppercase;
-    margin-right: 30px;
-}
-
-/* Diseño del icono de búsqueda */
+  }
+  
+  /* Barra de búsqueda */
 .search-section {
     display: flex;
     align-items: center;
-    padding: 5px 10px;
+    padding: 10px 10px;
     height: 50px;
-    width: auto;
-}
-
-.search-icon {
-    font-size: 20px;
+    width: 300px;
+    gap: 10px;
+    background-color: transparent; 
+  }
+  
+  .search-icon {
+    font-size: 25px;
     color: white;
     cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-}
+  }
 
-.search-icon:hover {
-    transform: scale(1.1);
-}
+  .search-icon:hover {
+    transform: scale(1.2); 
+  }
+  
+  /* Campo de entrada de búsqueda */
+  .search-input {
+    border: none; 
+    border-bottom: 2px solid white; 
+    outline: none;
+    background-color: transparent;
+    color: white;
+    font-size: 16px;
+    flex-grow: 1; 
+    padding: 5px 10px;
+    
+  }
+  
 
-.search-divider {
-    width: 100px;
-    height: 2px;
-    background-color: white;
-    border-radius: 10px;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-
-/* 🔹 RESPONSIVE DESIGN 🔹 */
-@media (max-width: 992px) {
+  /* Estilos para cuando se hace scroll */
+  .custom-navbar.scrolled {
+    height: 130px; 
+  }
+  
+  .navbar-logo.scrolled {
+    width: 150px; 
+    height: auto;
+  }
+  
+  /* Responsivo: tablet y dispositivos más pequeños */
+  @media (max-width: 992px) {
     .custom-navbar {
-        min-height: 200px;
-        padding: 10px 20px;
+      height: 200px;
+      padding: 10px 20px;
     }
-
+  
     .left-section {
-        position: relative;
-        top: auto;
-        left: auto;
-        justify-content: center;
-        width: 100%;
+      position: relative;
+      top: auto;
+      left: auto;
+      justify-content: center;
+      width: 100%;
     }
-
+  
     .navbar-logo {
-        height: 60px;
+      height: 60px;
     }
-
+  
     .nav-links {
-        flex-direction: column;
-        gap: 10px;
-        margin-right: 0;
-        text-align: center;
-        width: 100%;
-        display: block;
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+      width: 100%;
     }
-
+  
     .search-section {
-        position: absolute;
-        top: 80px;
-        right: 10px;
-        width: 50px;
-        padding: 5px;
+      position: absolute;
+      top: 80px;
+      right: 10px;
+      width: 50px;
+      padding: 5px;
     }
-}
-
-@media (max-width: 768px) {
+  }
+  
+  /* Responsivo: móviles */
+  @media (max-width: 768px) {
     .custom-navbar {
-        min-height: 150px;
-        padding: 5px 10px;
+      height: 150px;
+      padding: 5px 10px;
     }
-
+  
     .navbar-logo {
-        height: 50px;
+      height: 50px;
     }
-
-    .event-type-link {
-        font-size: 12px;
-    }
-
+  
     .search-section {
-        position: absolute;
-        top: 90px;
-        right: 10px;
-        width: 40px;
-        padding: 5px;
+      position: absolute;
+      top: 90px;
+      right: 10px;
+      width: 40px;
+      padding: 5px;
     }
-
+  
     .search-divider {
-        width: 80px;
+      width: 80px;
     }
-}
+  }
+  
