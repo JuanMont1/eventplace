@@ -7,8 +7,8 @@ import "../styles/NavBar.css"; // Estilos personalizados
 
 export const NavBar = () => {
   const [scrolling, setScrolling] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // Estado para manejar la búsqueda
-  const [loggedUser, setLoggedUser] = useState({ name: "Juan Pérez" }); // Estado del usuario logueado
+  const [searchQuery, setSearchQuery] = useState(""); 
+  const [loggedUser, setLoggedUser] = useState({ name: "Juan Pérez" });
 
   useEffect(() => {
     // Detecta el scroll
@@ -78,7 +78,10 @@ export const NavBar = () => {
 
               {/* Sección de usuario logueado */}
               <div className="user-section">
-                <FaUserCircle className="user-icon" />
+              <Link to="/Login" className="profile-link">
+              <FaUserCircle className="user-icon" />  
+                  </Link>
+
                 <span className="user-name">
                   {loggedUser ? loggedUser.name : "Iniciar sesión"}
                 </span>

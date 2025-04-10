@@ -6,6 +6,8 @@ import Slider from "./Components/Slider";
 import Footer from './Components/Footer';
 import Eventos from './Components/Eventos';
 import UserProfile from './Components/UserProfile';
+import Login from './Components/Login';
+import Register from './Components/register';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -26,7 +28,10 @@ function App() {
 
           {/* Ruta del perfil de usuario */}
           <Route path="/UserProfile" element={<UserProfile />} />
-        </Routes>
+          <Route path="/Login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+ 
+           </Routes>
         
       </div>
     </Router>
