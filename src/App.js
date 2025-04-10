@@ -5,7 +5,7 @@ import CalendarSection from "./Components/CalendarSection";
 import Slider from "./Components/Slider";
 import Footer from './Components/Footer';
 import Eventos from './Components/Eventos';
-import UserProfile from './Components/UserProfile'; 
+import UserProfile from './Components/UserProfile';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
           } />
 
           {/* Ruta del perfil de usuario */}
-          <Route path="/userprofile" element={<UserProfile />} />
+          <Route path="/UserProfile" element={<UserProfile />} />
         </Routes>
         
       </div>

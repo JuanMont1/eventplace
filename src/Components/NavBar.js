@@ -83,7 +83,7 @@ export const NavBar = () => {
                   {loggedUser ? loggedUser.name : "Iniciar sesión"}
                 </span>
                 {loggedUser && (
-                  <Link to="/userprofile" className="profile-link">
+                  <Link to="/UserProfile" className="profile-link">
                     Ver perfil
                   </Link>
                 )}

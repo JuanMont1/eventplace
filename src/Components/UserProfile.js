@@ -1,99 +1,149 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/UserProfile.css";
 
-const UserProfile = () => {
-  const [user, setUser] = useState({
-    name: "Juan Pérez",
-    faculty: "Ingeniería",
-    email: "juan.perez@universidad.com",
-    location: "Ciudad Universitaria",
-    avatarUrl:
-      "https://media.istockphoto.com/id/1766352902/es/v%C3%ADdeo/diversidad-de-personas-muchas-razas-diferentes-retrato-de-rostro-multi%C3%A9tnico-mezcla-humana.jpg?s=640x640&k=20&c=jJK56ZTa6OJ5eFLsMoIWd9M-YvuumhuE5b-69Q2MYEc=",
-    eventsAttended: [
-      {
-        title: "Simposio de Innovación Tecnológica",
-        rating: 4,
-        description: "Excelente evento de aprendizaje y networking.",
-      },
-    ],
-    eventsUpcoming: [
-      {
-        title: "Charla Académica sobre Inteligencia Artificial",
-        rating: 1,
-        description: "¡Estoy muy emocionado por asistir!",
-      },
-    ],
-  });
+// Componente para mostrar información de cada evento
+const TarjetaEvento = ({ evento, manejarFavorito, manejarCalificacion }) => (
+  <div className="tarjeta-evento personalizada">
+    <div className="imagen-evento" style={{ backgroundImage: `url(${evento.imagen})` }}>
+      <div className="overlay">
+        <h4 className="titulo-evento">{evento.nombre}</h4>
+        <p className="fecha-evento">{evento.fecha}</p>
+      </div>
+    </div>
+    <div className="info-evento">
+      <p className="ubicacion-evento">📍 {evento.ubicacion}</p>
+      <div className="calificacion">
+        {[1, 2, 3, 4, 5].map((estrella) => (
+          <span
+            key={estrella}
+            className={`estrella ${evento.calificacion >= estrella ? "calificada" : ""}`}
+            onClick={() => manejarCalificacion(evento.id, estrella)}
+          >
+            ★
+          </span>
+        ))}
+      </div>
+      <button className="boton-ver-evento">ver evento</button>
+    </div>
+  </div>
+);
+
+const MiComponente = () => {
+  const [eventos, setEventos] = useState([]);
+  const [abierto, setAbierto] = useState(false);
+
+  // Simulación de obtención de datos 
+  useEffect(() => {
+    const obtenerEventos = () => {
+      const datosEventos = [
+        {
+          id: 1,
+          nombre: "Festival Buen Ambiente",
+          fecha: "Del 25 de noviembre al 18 de diciembre del 2025",
+          ubicacion: "CAMINATA CHIA",
+          imagen: "https://th.bing.com/th/id/OIP.bbBGKouF233E9fPnMTTxBAHaE8?w=296&h=197&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+          esFavorito: false,
+          calificacion: 0,
+        },
+        {
+          id: 2,
+          nombre: "Taller de React",
+          fecha: "12 de octubre del 2025",
+          ubicacion: "Facultad de Ingeniería",
+          imagen: "https://th.bing.com/th/id/OIP.bbBGKouF233E9fPnMTTxBAHaE8?w=296&h=197&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+          esFavorito: true,
+          calificacion: 4,
+        },
+        
+      ];
+      setEventos(datosEventos);
+    };
+
+    obtenerEventos();
+  }, []);
+
+  // Maneja el cambio de estado de favorito
+  const manejarFavorito = (id) => {
+    setEventos((prev) =>
+      prev.map((evento) =>
+        evento.id === id ? { ...evento, esFavorito: !evento.esFavorito } : evento
+      )
+    );
+  };
+
+  // Maneja la calificación de un evento
+  const manejarCalificacion = (id, calificacion) => {
+    setEventos((prev) =>
+      prev.map((evento) =>
+        evento.id === id ? { ...evento, calificacion } : evento
+      )
+    );
+  };
+
+  // Función para abrir/cerrar la barra lateral
+  const toggleSidebar = () => setAbierto(!abierto);
 
   return (
-    <div className="profile-container">
-      {/* Encabezado del perfil */}
-      <header className="profile-header">
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/1/11/Logo_Universidad_de_Cundinamarca.png" 
-          alt="Logo de la Universidad"
-          className="logo"
-        />
-        <h1>Perfil de Usuario</h1>
-      </header>
-
-      {/* Contenido del perfil */}
-      <div className="profile-content">
-        <div className="user-info">
-          <img
-            src={user.avatarUrl}
-            alt="Avatar del Usuario"
-            className="avatar"
-          />
-          <h2>{user.name}</h2>
-          <p><strong>Facultad:</strong> {user.faculty}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Ubicación:</strong> {user.location}</p>
-          <button className="edit-profile-btn">Editar Perfil</button>
-        </div>
-
-        {/* Sección de eventos */}
-        <div className="events-section">
-          <h3>Eventos a los que asistí</h3>
-          {user.eventsAttended.length === 0 ? (
-            <p>No has asistido a ningún evento aún.</p>
-          ) : (
-            user.eventsAttended.map((event, index) => (
-              <div className="event-card attended" key={index}>
-                <h4>{event.title}</h4>
-                <div className="rating">
-                  {"⭐".repeat(event.rating)}
-                  {"☆".repeat(5 - event.rating)}
-                </div>
-                <p>{event.description}</p>
-              </div>
-            ))
-          )}
-
-          <h3>Eventos a los que asistiré</h3>
-          {user.eventsUpcoming.length === 0 ? (
-            <p>No tienes eventos próximos programados.</p>
-          ) : (
-            user.eventsUpcoming.map((event, index) => (
-              <div className="event-card upcoming" key={index}>
-                <h4>{event.title}</h4>
-                <div className="rating">
-                  {"⭐".repeat(event.rating)}
-                  {"☆".repeat(5 - event.rating)}
-                </div>
-                <p>{event.description}</p>
-              </div>
-            ))
-          )}
+    <div className={`contenedor-principal ${abierto ? "sidebar-activo" : ""}`}>
+      {/* Sidebar */}
+      <div className={`sidebar ${abierto ? "abierto" : ""}`}>
+        <div className="seccion1">
+          <h3>Configuraciones</h3>
+          <p>Ajusta tus preferencias y configuraciones de cuenta aquí.</p>
+          <div className="lista-configuraciones">
+            {/* Sección de botones de configuración */}
+            <button className="boton-configuracion"><i className="fas fa-user-cog"></i> Editar perfil</button>
+            <button className="boton-configuracion"><i className="fas fa-lock"></i> Cambiar contraseña</button>
+            <button className="boton-configuracion"><i className="fas fa-bell"></i> Configurar notificaciones</button>
+            <button className="boton-configuracion"><i className="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+          </div>
         </div>
       </div>
 
-      {/* Botón de navegación */}
-      <footer>
-        <button className="prev-button">Anterior</button>
-      </footer>
+      {/* Contenido Principal */}
+      <div className="contenido-principal">
+        <button onClick={toggleSidebar} className="boton-abrir-sidebar">
+          <i className="fas fa-cog"></i>
+        </button>
+
+        {/* Información del perfil */}
+        <div className="seccion2">
+          <h3>Universidad Cundinamarca</h3>
+          <div className="perfil">
+            <img
+              src="https://th.bing.com/th/id/OIP.GOJen5OQrmyG7FpS6BkOnAHaEK?w=292&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+              alt="Perfil"
+              className="imagen-perfil"
+            />
+            <div className="informacion-perfil">
+              <div className="nombre-perfil">Usuario</div>
+              <div className="rol-perfil">Estudiante</div>
+            </div>
+          </div>
+          <div className="acciones-perfil">
+            <button className="boton-perfil"><i className="fas fa-edit"></i> Editar perfil</button>
+            <button className="boton-perfil"><i className="fas fa-cogs"></i> Ajustes</button>
+          </div>
+        </div>
+
+        {/* Eventos Inscritos */}
+        <div className="seccion4">
+          <h3>Eventos Inscritos</h3>
+          <div className="eventos">
+            {eventos.map((evento) => (
+              <TarjetaEvento
+                key={evento.id}
+                evento={evento}
+                manejarFavorito={manejarFavorito}
+                manejarCalificacion={manejarCalificacion}
+              />
+            ))}
+          </div>
+          <h3>Eventos favoritos</h3>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default UserProfile;
+export default MiComponente;
