@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { BarraNavegacion } from "./Components/BarraNavegacion";
 import CalendarSection from "./Components/CalendarSection";
 import Slider from "./Components/Slider";
-import Footer from './Components/Footer';
+import PieDePagina from './Components/pieDePagina';
 import Eventos from './Components/Eventos';
 import UserProfile from './Components/UserProfile';
 import Login from './Components/Login';
@@ -22,7 +22,7 @@ function App() {
               <CalendarSection />
               <Slider />
               <Eventos />
-              <Footer />
+              <PieDePagina />
             </div>
           } />
 

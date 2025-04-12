@@ -3,7 +3,7 @@ import { Navbar, Container, Nav, NavDropdown, Button } from "react-bootstrap";
 import logo from "../archivos/img/logo.png";
 import { FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import "../styles/NavBar.css";
+import "../styles/BarraNavegacion.css";
 
 export const BarraNavegacion = () => {
   const [desplazado, setDesplazado] = useState(false);
