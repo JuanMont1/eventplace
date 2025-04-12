@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/UserProfile.css";
 
-// Componente actualizado para mostrar informaci&oacute;n de cada evento
+// Informacion de cards
 const TarjetaEvento = ({ evento, manejarCalificacion }) => (
   <div className="tarjeta-evento personalizada">
     <div className="imagen-evento" style={{ backgroundImage: `url(${evento.imagen})` }}>
@@ -38,39 +38,39 @@ const UserProfile = () => {
   useEffect(() => {
     const storedSuscripciones = JSON.parse(localStorage.getItem('suscripciones')) || [];
     console.log('Suscripciones cargadas:', storedSuscripciones);
-    // Filtrar suscripciones v&aacute;lidas
+    // Filtrar suscripciones validas 
     const suscripcionesValidas = storedSuscripciones.filter(evento => 
       evento && evento.id && evento.nombre && evento.categoria && evento.fecha && evento.facultad
     );
     setSuscripciones(suscripcionesValidas);
   }, []);
 
-  // Maneja la calificaci&oacute;n de un evento
+  // Maneja la calificacin de cada suscripcion
   const manejarCalificacion = (id, calificacion) => {
     setSuscripciones(prevSuscripciones => {
       const newSuscripciones = prevSuscripciones.map(evento =>
         evento.id === id ? { ...evento, calificacion } : evento
       );
-      // Actualizar localStorage
+      
       localStorage.setItem('suscripciones', JSON.stringify(newSuscripciones));
       return newSuscripciones;
     });
   };
 
-  // Funci&oacute;n para abrir/cerrar la barra lateral
+  // barra lateral
   const toggleSidebar = () => setAbierto(!abierto);
 
   return (
     <div className="user-profile-page">
       <Link to="/" className="volver-inicio">Volver al Inicio</Link>
       <div className={`contenedor-principal ${abierto ? "sidebar-activo" : ""}`}>
-        {/* Sidebar */}
+       
         <div className={`sidebar ${abierto ? "abierto" : ""}`}>
           <div className="seccion1">
             <h3>Configuraciones</h3>
             <p>Ajusta tus preferencias y configuraciones de cuenta aqu&iacute;.</p>
             <div className="lista-configuraciones">
-              {/* Secci&oacute;n de botones de configuraci&oacute;n */}
+             
               <button className="boton-configuracion"><i className="fas fa-user-cog"></i> Editar perfil</button>
               <button className="boton-configuracion"><i className="fas fa-lock"></i> Cambiar contrase&ntilde;a</button>
               <button className="boton-configuracion"><i className="fas fa-bell"></i> Configurar notificaciones</button>
@@ -79,13 +79,13 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* Contenido Principal */}
+        
         <div className="contenido-principal">
           <button onClick={toggleSidebar} className="boton-abrir-sidebar">
             <i className="fas fa-cog"></i>
           </button>
 
-          {/* Informaci&oacute;n del perfil */}
+          
           <div className="seccion2">
             <h3>Universidad Cundinamarca</h3>
             <div className="perfil">
