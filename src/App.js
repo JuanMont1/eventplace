@@ -9,6 +9,7 @@ import UserProfile from './Components/UserProfile';
 import Login from './Components/Login';
 import Register from './Components/register';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import MisSuscripciones from './Components/MisSuscripciones';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/UserProfile" element={<UserProfile />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/MisSuscripciones" element={<MisSuscripciones />} />
  
            </Routes>
         

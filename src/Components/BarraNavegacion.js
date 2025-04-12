@@ -30,6 +30,10 @@ export const BarraNavegacion = () => {
     navegar("/login");
   };
 
+  const irAPerfil = () => {
+    navegar("/UserProfile");
+  };
+
   return (
     <>
       <div className={`fondo-barra ${desplazado ? "con-scroll" : ""}`}></div>
@@ -60,7 +64,7 @@ export const BarraNavegacion = () => {
               <Nav.Link as={Link} to="/calendario">
                 Calendario
               </Nav.Link>
-              <Nav.Link as={Link} to="/mis-suscripciones">
+              <Nav.Link as={Link} to="/MisSuscripciones">
                 Mis Suscripciones
               </Nav.Link>
               <NavDropdown title="Facultades" id="menu-facultades">
@@ -99,12 +103,20 @@ export const BarraNavegacion = () => {
                     <span className="nombre-usuario">{usuarioActivo.name}</span>
                   </Link>
                 ) : (
-                  <Button
-                    onClick={irALogin}
-                    className="btn-iniciar-sesion btn-transparente"
-                  >
-                    Iniciar sesión
-                  </Button>
+                  <>
+                    <Button
+                      onClick={irALogin}
+                      className="btn-iniciar-sesion btn-transparente me-2"
+                    >
+                      Iniciar sesión
+                    </Button>
+                    <Button
+                      onClick={irAPerfil}
+                      className="btn-perfil btn-transparente"
+                    >
+                      Mi Perfil
+                    </Button>
+                  </>
                 )}
               </div>
             </Nav>

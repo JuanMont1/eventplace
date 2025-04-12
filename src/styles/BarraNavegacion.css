@@ -180,3 +180,14 @@
     display: none;
   }
 }
+
+
+.navbar-nav .dropdown-item {
+  color: green !important;
+}
+
+.navbar-nav .dropdown-item:hover {
+  color: darkgreen !important;
+}
+
+
