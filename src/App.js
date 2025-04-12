@@ -1,6 +1,6 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { NavBar } from "./Components/NavBar";
+import { BarraNavegacion } from "./Components/BarraNavegacion";
 import CalendarSection from "./Components/CalendarSection";
 import Slider from "./Components/Slider";
 import Footer from './Components/Footer';
@@ -18,7 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={
             <div className="main-content"> 
-              <NavBar />
+              <BarraNavegacion />
               <CalendarSection />
               <Slider />
               <Eventos />
@@ -26,7 +26,7 @@ function App() {
             </div>
           } />
 
-          {/* Ruta del perfil de usuario */}
+          {/* Rutas*/}
           <Route path="/UserProfile" element={<UserProfile />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/register" element={<Register />} />
