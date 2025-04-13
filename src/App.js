@@ -13,7 +13,7 @@ import Register from './Components/register';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation} from 'react-router-dom';
 import MisSuscripciones from './Components/MisSuscripciones';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-
+import ProximosEventos from './Components/proximos-eventos';
 
 // rutas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -24,11 +24,10 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-
 const AppContent = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const hideLayout = ['/login', '/register', '/perfil'].includes(location.pathname);
+  const hideLayout = ['/login', '/register', '/perfil', '/proximos-eventos'].includes(location.pathname);
 
   return (
     <div className="App">
@@ -54,6 +53,7 @@ const AppContent = () => {
           </ProtectedRoute>
         } />
         <Route path="/mis-suscripciones" element={<MisSuscripciones />} />
+        <Route path="/proximos-eventos" element={<ProximosEventos />} />
       </Routes>
       {!hideLayout && <PieDePagina />}
     </div>

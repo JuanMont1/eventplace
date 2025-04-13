@@ -12,12 +12,15 @@ import "../styles/MisSuscripciones.css";
 import { BarraNavegacion } from '../Components/BarraNavegacion';
 import { FaGraduationCap, FaMusic, FaFootballBall, FaPalette, FaCode } from 'react-icons/fa';
 import PieDePagina from '../Components/pieDePagina';
+import { auth, db } from '../firebase';
+import { doc, getDoc, setDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 
 const MisSuscripciones = () => {
   const [eventos, setEventos] = useState([]);
   const [suscripciones, setSuscripciones] = useState([]);
   const [filtro, setFiltro] = useState("");
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
+  const [user, setUser] = useState(null);
 
   const categories = [
     { id: 1, name: 'Académico', icon: <FaGraduationCap />, color: '#4285F4' },
@@ -26,6 +29,17 @@ const MisSuscripciones = () => {
     { id: 4, name: 'Artístico', icon: <FaPalette />, color: '#FBBC05' },
     { id: 5, name: 'Tecnología', icon: <FaCode />, color: '#FF6D01' },
   ];
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        fetchUserSuscripciones(currentUser.uid);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const eventosEjemplo = [
@@ -75,20 +89,45 @@ const MisSuscripciones = () => {
       },
     ];
     setEventos(eventosEjemplo);
-
-    const storedSuscripciones =
-      JSON.parse(localStorage.getItem("suscripciones")) || [];
-    setSuscripciones(storedSuscripciones);
   }, []);
 
-  const toggleSuscripcion = (evento) => {
-    setSuscripciones((prev) => {
-      const newSuscripciones = prev.some((e) => e.id === evento.id)
-        ? prev.filter((e) => e.id !== evento.id)
-        : [...prev, evento];
-      localStorage.setItem("suscripciones", JSON.stringify(newSuscripciones));
-      return newSuscripciones;
-    });
+  const fetchUserSuscripciones = async (userId) => {
+    try {
+      const userRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        setSuscripciones(userData.suscripciones || []);
+      }
+    } catch (error) {
+      console.error("Error al obtener suscripciones:", error);
+    }
+  };
+
+  const toggleSuscripcion = async (evento) => {
+    if (!user) {
+      alert("Por favor, inicia sesión para suscribirte a eventos.");
+      return;
+    }
+
+    const userRef = doc(db, "users", user.uid);
+    try {
+      if (suscripciones.some(e => e.id === evento.id)) {
+        // Cancelar suscripción
+        await setDoc(userRef, {
+          suscripciones: arrayRemove(evento)
+        }, { merge: true });
+        setSuscripciones(prev => prev.filter(e => e.id !== evento.id));
+      } else {
+        // Suscribirse
+        await setDoc(userRef, {
+          suscripciones: arrayUnion(evento)
+        }, { merge: true });
+        setSuscripciones(prev => [...prev, evento]);
+      }
+    } catch (error) {
+      console.error("Error al actualizar suscripciones:", error);
+    }
   };
 
   const eventosFiltrados = eventos.filter(
@@ -250,7 +289,7 @@ const MisSuscripciones = () => {
           </Row>
         </Container>
       </section>
-      <PieDePagina />
+      
     </div>
   );
 };

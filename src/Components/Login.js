@@ -9,6 +9,9 @@ import '../styles/Login.css';
 const Login = () => {
   const [fadeOut, setFadeOut] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleRegisterClick = () => {
@@ -45,15 +48,14 @@ const Login = () => {
     }
   };
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const email = e.target[0].value;
-    const password = e.target[1].value;
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/perfil');
+      // Redirigir a MisSuscripciones después del inicio de sesión exitoso
+      navigate("/MisSuscripciones");
     } catch (error) {
-      console.error("Error al iniciar sesión:", error);
+      setError(error.message);
     }
   };
 
@@ -66,14 +68,15 @@ const Login = () => {
           Bienvenido al sistema de eventos de la Universidad de Cundinamarca
         </p>
 
-        <form className="login-form" onSubmit={handleLogin}>
+        <form className="login-form" onSubmit={handleSubmit}>
           <label>Correo institucional</label>
-          <input type="email" placeholder="usuario@ucundinamarca.edu.co" required />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="usuario@ucundinamarca.edu.co" required />
 
           <label>Contraseña</label>
-          <input type="password" placeholder="********" required />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="********" required />
 
           <button type="submit" className="login-btn">Iniciar Sesión</button>
+          {error && <p className="error-message">{error}</p>}
         </form>
 
         <p className="forgot-password">

@@ -44,7 +44,9 @@ const UserProfile = () => {
         const userRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
-          setUser({ id: currentUser.uid, ...userSnap.data() });
+          const userData = userSnap.data();
+          setUser({ id: currentUser.uid, ...userData });
+          setSuscripciones(userData.suscripciones || []);
         } else {
           setError("No se encontró el perfil del usuario");
         }
@@ -68,33 +70,18 @@ const UserProfile = () => {
     return () => unsubscribe();
   }, [navigate]);
 
-  useEffect(() => {
-    const storedSuscripciones =
-      JSON.parse(localStorage.getItem("suscripciones")) || [];
-    console.log("Suscripciones cargadas:", storedSuscripciones);
-
-    // Filtrar suscripciones validas
-    const suscripcionesValidas = storedSuscripciones.filter(
-      (evento) =>
-        evento &&
-        evento.id &&
-        evento.nombre &&
-        evento.categoria &&
-        evento.fecha &&
-        evento.facultad
-    );
-    setSuscripciones(suscripcionesValidas);
-  }, []);
-
-  const manejarCalificacion = (id, calificacion) => {
-    setSuscripciones((prevSuscripciones) => {
-      const newSuscripciones = prevSuscripciones.map((evento) =>
+  const manejarCalificacion = async (id, calificacion) => {
+    try {
+      const newSuscripciones = suscripciones.map((evento) =>
         evento.id === id ? { ...evento, calificacion } : evento
       );
 
-      localStorage.setItem("suscripciones", JSON.stringify(newSuscripciones));
-      return newSuscripciones;
-    });
+      const userRef = doc(db, "users", user.id);
+      await updateDoc(userRef, { suscripciones: newSuscripciones });
+      setSuscripciones(newSuscripciones);
+    } catch (error) {
+      console.error("Error al actualizar la calificación:", error);
+    }
   };
 
   const handleLogout = async () => {

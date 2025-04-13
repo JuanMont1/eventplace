@@ -69,7 +69,7 @@ export const BarraNavegacion = () => {
         expanded={menuExpandido}
       >
         <Container fluid className="px-4">
-          <Navbar.Brand as={Link} to="/" className="me-0">
+          <Navbar.Brand as={Link} to="/MisSuscripciones" className="me-0">
             <img
               src={logo}
               alt="Universidad de Cundinamarca"
@@ -87,7 +87,7 @@ export const BarraNavegacion = () => {
               <Nav.Link as={Link} to="/eventos">
                 Eventos
               </Nav.Link>
-              <Nav.Link as={Link} to="/calendario">
+              <Nav.Link as={Link} to="/">
                 Calendario
               </Nav.Link>
               <Nav.Link as={Link} to="/MisSuscripciones">
@@ -101,17 +101,7 @@ export const BarraNavegacion = () => {
                   Ciencias
                 </NavDropdown.Item>
               </NavDropdown>
-              <NavDropdown title="Categorías" id="menu-categorias">
-                <NavDropdown.Item as={Link} to="/categoria/academicos">
-                  Académicos
-                </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/categoria/culturales">
-                  Culturales
-                </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/categoria/deportivos">
-                  Deportivos
-                </NavDropdown.Item>
-              </NavDropdown>
+              <Nav.Link as={Link} to="/proximos-eventos">Próximos Eventos</Nav.Link>
               <div className="busqueda-seccion d-none d-lg-flex ms-3">
                 <FaSearch className="icono-busqueda" />
                 <input
