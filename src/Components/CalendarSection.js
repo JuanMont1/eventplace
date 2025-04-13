@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaCalendarAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "../styles/CalendarSection.css";
 import events from '../Components/DatosEventos';
 
@@ -23,20 +23,27 @@ const CalendarSection = () => {
   // Obtener eventos del año y mes seleccionados
   const currentMonthEvents = events[selectedYear]?.[selectedMonth] || [];
 
+  const changeMonth = (direction) => {
+    const currentIndex = months.indexOf(selectedMonth);
+    let newIndex;
+    if (direction === 'next') {
+      newIndex = (currentIndex + 1) % 12;
+    } else {
+      newIndex = (currentIndex - 1 + 12) % 12;
+    }
+    setSelectedMonth(months[newIndex]);
+  };
+
   return (
     <div className="calendar-section">
-      <div className="image-container" onClick={() => window.location.href = 'https://www.ejemplo.com'}>
-        <img src="/logo.png" alt="Imagen Hover" />
-      </div>
-
       <div className="calendar-header">
-        <h2>CALENDARIO</h2>
+        <h2>Calendario</h2>
 
         <div className="year-selector">
           <select
             className="year-dropdown"
             value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
           >
             {years.map((year) => (
               <option key={year} value={year}>
@@ -51,36 +58,54 @@ const CalendarSection = () => {
         </div>
       </div>
 
+      <div className="month-navigator">
+        <button onClick={() => changeMonth('prev')} className="nav-button">
+          <FaChevronLeft />
+        </button>
+        <h3>{selectedMonth}</h3>
+        <button onClick={() => changeMonth('next')} className="nav-button">
+          <FaChevronRight />
+        </button>
+      </div>
+
       <div className="months-container">
         {months.map((month) => (
           <div
-            className="month"
+            className={`month ${month === selectedMonth ? 'active' : ''}`}
             key={month}
             onClick={() => handleMonthClick(month)}
           >
             <FaCalendarAlt className="calendar-icon" />
-            <span>{month}</span>
+            <span>{month.substring(0, 3)}</span>
           </div>
         ))}
       </div>
 
       {/* Sección de eventos */}
-      {currentMonthEvents.length > 0 ? (
-        <div className="events-section">
-          <h3>Eventos de {selectedMonth} {selectedYear}</h3>
-          <div className="events-container">
-            {currentMonthEvents.map((event, index) => (
-              <div className="event-card" key={index}>
-                <h4>{event.title}</h4>
-                <p><strong>Fecha:</strong> {event.date}</p>
-                <p>{event.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <p>No hay eventos para este mes.</p>
-      )}
+      <div className="events-section">
+        {currentMonthEvents.length > 0 ? (
+          <>
+            <h3>Eventos de {selectedMonth} {selectedYear}</h3>
+            <div className="events-container">
+              {currentMonthEvents.map((event, index) => (
+                <div className="event-card" key={index}>
+                  <div className="event-header">
+                    <h4>{event.title}</h4>
+                    <span className="event-date">{event.date}</span>
+                  </div>
+                  <p className="event-description">{event.description}</p>
+                  <div className="event-footer">
+                    <span className="event-location">{event.location}</span>
+                    <button className="event-details-btn">Ver detalles</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="no-events">No hay eventos para este mes.</p>
+        )}
+      </div>
     </div>
   );
 };
