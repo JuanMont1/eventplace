@@ -6,7 +6,7 @@ import { FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/BarraNavegacion.css";
 import { useAuth } from '../contexts/AuthContext';
-
+/* hola */
 export const BarraNavegacion2 = () => {
   const [desplazado, setDesplazado] = useState(false);
   const [busqueda, setBusqueda] = useState("");
