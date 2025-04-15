@@ -1,8 +1,10 @@
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
 import { BarraNavegacion } from "./Components/BarraNavegacion";
 import { BarraNavegacion2 } from './Components/BarraNavegacion2';
+import { BarraNavegacionAdmin } from './Components/BarraNavegacionAdmin';
 import CalendarSection from "./Components/CalendarSection";
 import Slider from "./Components/Slider";
 import PieDePagina from './Components/pieDePagina';
@@ -14,24 +16,37 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useLocation} from 're
 import MisSuscripciones from './Components/MisSuscripciones';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProximosEventos from './Components/proximos-eventos';
+import GaleriaEventos from './Components/galeriaDeeventos';
+import AdminPage from './Components/AdminPage'; // Asegúrate de crear este componente
 
 // rutas protegidas
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <div>Cargando...</div>;
   }
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
   return children;
 };
 
 const AppContent = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const hideLayout = ['/login', '/register', '/perfil', '/proximos-eventos'].includes(location.pathname);
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isLoginRoute = location.pathname === '/login';
+  const hideLayout = ['/login', '/register', '/perfil', '/proximos-eventos', '/eventos', '/admin/perfil'].includes(location.pathname);
 
   return (
     <div className="App">
-      {!hideLayout && (user ? <BarraNavegacion2 /> : <BarraNavegacion />)}
+      {!hideLayout && !isLoginRoute && (
+        isAdminRoute ? <BarraNavegacionAdmin /> : (user ? <BarraNavegacion2 /> : <BarraNavegacion />)
+      )}
       <Routes>
         <Route path="/" element={
           <div className="main-content">
@@ -52,21 +67,32 @@ const AppContent = () => {
             <UserProfile />
           </ProtectedRoute>
         } />
+        <Route path="/admin/perfil" element={
+          <ProtectedRoute>
+            <UserProfile />
+          </ProtectedRoute>
+        } />
         <Route path="/mis-suscripciones" element={<MisSuscripciones />} />
         <Route path="/proximos-eventos" element={<ProximosEventos />} />
+        <Route path="/eventos" element={<GaleriaEventos />} />
+        <Route path="/admin/*" element={
+          <ProtectedRoute>
+            <AdminPage />
+          </ProtectedRoute>
+        } />
       </Routes>
-      {!hideLayout && <PieDePagina />}
+      {!hideLayout && !isLoginRoute && <PieDePagina />}
     </div>
   );
 };
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <AppContent />
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

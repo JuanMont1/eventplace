@@ -4,7 +4,9 @@ import logo from "../archivos/img/logo.png";
 import { FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/BarraNavegacion.css";
-import { auth } from '../firebase'; // Asegúrate de importar auth desde tu configuración de Firebase
+import { auth, db } from '../firebase'; 
+import { doc, getDoc } from 'firebase/firestore';
+import { BarraNavegacionAdmin } from './BarraNavegacionAdmin';
 
 export const BarraNavegacion = () => {
   const [desplazado, setDesplazado] = useState(false);
@@ -20,14 +22,26 @@ export const BarraNavegacion = () => {
 
     window.addEventListener("scroll", manejarScroll);
 
-    // Escuchar cambios en el estado de autenticación
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        setUsuarioActivo({
-          name: user.displayName,
-          email: user.email,
-          // Agrega cualquier otra información del usuario que necesites
-        });
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          console.log("Rol del usuario:", userData.role);
+          setUsuarioActivo({
+            name: user.displayName,
+            email: user.email,
+            role: userData.role || 'user',
+          });
+        } else {
+          console.log("No se encontró documento de usuario, asignando rol 'user'");
+          setUsuarioActivo({
+            name: user.displayName,
+            email: user.email,
+            role: 'user',
+          });
+        }
       } else {
         setUsuarioActivo(null);
       }
@@ -62,89 +76,95 @@ export const BarraNavegacion = () => {
 
   return (
     <>
-      <div className={`fondo-barra ${desplazado ? "con-scroll" : ""}`}></div>
-      <Navbar
-        expand="lg"
-        className={`barra-personalizada ${desplazado ? "con-scroll" : ""}`}
-        expanded={menuExpandido}
-      >
-        <Container fluid className="px-4">
-          <Navbar.Brand as={Link} to="/MisSuscripciones" className="me-0">
-            <img
-              src={logo}
-              alt="Universidad de Cundinamarca"
-              className={`logo-barra ${desplazado ? "con-scroll" : ""}`}
-            />
-          </Navbar.Brand>
-          <Navbar.Toggle
-            aria-controls="menu-navegacion"
-            onClick={() => setMenuExpandido(!menuExpandido)}
+      {usuarioActivo && usuarioActivo.role === 'admin' ? (
+        <BarraNavegacionAdmin usuarioActivo={usuarioActivo} cerrarSesion={cerrarSesion} />
+      ) : (
+        <>
+          <div className={`fondo-barra ${desplazado ? "con-scroll" : ""}`}></div>
+          <Navbar
+            expand="lg"
+            className={`barra-personalizada ${desplazado ? "con-scroll" : ""}`}
+            expanded={menuExpandido}
           >
-            <FaBars />
-          </Navbar.Toggle>
-          <Navbar.Collapse id="menu-navegacion" className="justify-content-end">
-            <Nav className="alineacion-items">
-              <Nav.Link as={Link} to="/eventos">
-                Eventos
-              </Nav.Link>
-              <Nav.Link as={Link} to="/">
-                Calendario
-              </Nav.Link>
-              <Nav.Link as={Link} to="/MisSuscripciones">
-                Mis Suscripciones
-              </Nav.Link>
-              <NavDropdown title="Facultades" id="menu-facultades">
-                <NavDropdown.Item as={Link} to="/facultad/ingenieria">
-                  Ingeniería
-                </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/facultad/ciencias">
-                  Ciencias
-                </NavDropdown.Item>
-              </NavDropdown>
-              <Nav.Link as={Link} to="/proximos-eventos">Próximos Eventos</Nav.Link>
-              <div className="busqueda-seccion d-none d-lg-flex ms-3">
-                <FaSearch className="icono-busqueda" />
-                <input
-                  type="text"
-                  className="input-busqueda"
-                  value={busqueda}
-                  onChange={manejarCambioBusqueda}
-                  placeholder="Buscar eventos..."
+            <Container fluid className="px-4">
+              <Navbar.Brand as={Link} to="/MisSuscripciones" className="me-0">
+                <img
+                  src={logo}
+                  alt="Universidad de Cundinamarca"
+                  className={`logo-barra ${desplazado ? "con-scroll" : ""}`}
                 />
-              </div>
-              <div className="seccion-usuario ms-3">
-                {usuarioActivo ? (
-                  <>
-                    <NavDropdown 
-                      title={
-                        <>
-                          <FaUserCircle className="icono-usuario" />
-                          <span className="nombre-usuario">{usuarioActivo.name}</span>
-                        </>
-                      } 
-                      id="menu-usuario"
-                    >
-                      <NavDropdown.Item as={Link} to="/perfil">Mi Perfil</NavDropdown.Item>
-                      <NavDropdown.Item as={Link} to="/MisSuscripciones">Mis Suscripciones</NavDropdown.Item>
-                      <NavDropdown.Divider />
-                      <NavDropdown.Item onClick={cerrarSesion}>Cerrar Sesión</NavDropdown.Item>
-                    </NavDropdown>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      onClick={irALogin}
-                      className="btn-iniciar-sesion btn-transparente me-2"
-                    >
-                      Iniciar sesión
-                    </Button>
-                  </>
-                )}
-              </div>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+              </Navbar.Brand>
+              <Navbar.Toggle
+                aria-controls="menu-navegacion"
+                onClick={() => setMenuExpandido(!menuExpandido)}
+              >
+                <FaBars />
+              </Navbar.Toggle>
+              <Navbar.Collapse id="menu-navegacion" className="justify-content-end">
+                <Nav className="alineacion-items">
+                  <Nav.Link as={Link} to="/eventos">
+                    GaleriaEventos
+                  </Nav.Link>
+                  <Nav.Link as={Link} to="/">
+                    Calendario
+                  </Nav.Link>
+                  <Nav.Link as={Link} to="/MisSuscripciones">
+                    Mis Suscripciones
+                  </Nav.Link>
+                  <NavDropdown title="Facultades" id="menu-facultades">
+                    <NavDropdown.Item as={Link} to="/facultad/ingenieria">
+                      Ingeniería
+                    </NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/facultad/ciencias">
+                      Ciencias
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                  <Nav.Link as={Link} to="/proximos-eventos">Próximos Eventos</Nav.Link>
+                  <div className="busqueda-seccion d-none d-lg-flex ms-3">
+                    <FaSearch className="icono-busqueda" />
+                    <input
+                      type="text"
+                      className="input-busqueda"
+                      value={busqueda}
+                      onChange={manejarCambioBusqueda}
+                      placeholder="Buscar eventos..."
+                    />
+                  </div>
+                  <div className="seccion-usuario ms-3">
+                    {usuarioActivo ? (
+                      <>
+                        <NavDropdown 
+                          title={
+                            <>
+                              <FaUserCircle className="icono-usuario" />
+                              <span className="nombre-usuario">{usuarioActivo.name}</span>
+                            </>
+                          } 
+                          id="menu-usuario"
+                        >
+                          <NavDropdown.Item as={Link} to="/perfil">Ver Perfil</NavDropdown.Item>
+                          <NavDropdown.Item as={Link} to="/MisSuscripciones">Mis Suscripciones</NavDropdown.Item>
+                          <NavDropdown.Divider />
+                          <NavDropdown.Item onClick={cerrarSesion}>Cerrar Sesión</NavDropdown.Item>
+                        </NavDropdown>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={irALogin}
+                          className="btn-iniciar-sesion btn-transparente me-2"
+                        >
+                          Iniciar sesión
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </Nav>
+              </Navbar.Collapse>
+            </Container>
+          </Navbar>
+        </>
+      )}
     </>
   );
 };

@@ -12,10 +12,10 @@ const ProximosEventos = () => {
   useEffect(() => {
     // Simular la obtención de datos (esto deberías hacerlo desde una base de datos o API)
     setEventos([
-      { id: 1, nombre: "Conferencia de Ciencia", fecha: "2025-04-20", hora: "14:00", lugar: "Auditorio Principal", categoria: "Académicos", imagen: "https://example.com/imagen1.jpg", descripcion: "Una fascinante conferencia sobre los últimos avances científicos." },
-      { id: 2, nombre: "Torneo de Fútbol", fecha: "2025-04-22", hora: "10:00", lugar: "Campo Deportivo", categoria: "Deportivos", imagen: "https://example.com/imagen2.jpg", descripcion: "Emocionante torneo de fútbol entre facultades." },
-      { id: 3, nombre: "Festival Cultural", fecha: "2025-04-25", hora: "18:00", lugar: "Plaza Central", categoria: "Culturales", imagen: "https://example.com/imagen3.jpg", descripcion: "Celebra la diversidad cultural con música, danza y gastronomía." },
-      { id: 4, nombre: "Seminario de Innovación", fecha: "2025-05-05", hora: "09:00", lugar: "Sala de Conferencias", categoria: "Académicos", imagen: "https://example.com/imagen4.jpg", descripcion: "Descubre las últimas tendencias en innovación y tecnología." },
+      { id: 1, nombre: "Conferencia de Ciencia", fecha: "2025-04-20", hora: "14:00", lugar: "Auditorio Principal", categoria: "Académicos", imagen: "https://noticias.udec.cl/wp-content/uploads/2022/09/CADEC-06-1024x683.jpg", descripcion: "Una fascinante conferencia sobre los últimos avances científicos." },
+      { id: 2, nombre: "Torneo de Fútbol", fecha: "2025-04-22", hora: "10:00", lugar: "Campo Deportivo", categoria: "Deportivos", imagen: "https://noticias.udec.cl/wp-content/uploads/2022/09/CADEC-06-1024x683.jpg", descripcion: "Emocionante torneo de fútbol entre facultades." },
+      { id: 3, nombre: "Festival Cultural", fecha: "2025-04-25", hora: "18:00", lugar: "Plaza Central", categoria: "Culturales", imagen: "https://noticias.udec.cl/wp-content/uploads/2022/09/CADEC-06-1024x683.jpg", descripcion: "Celebra la diversidad cultural con música, danza y gastronomía." },
+      { id: 4, nombre: "Seminario de Innovación", fecha: "2025-05-05", hora: "09:00", lugar: "Sala de Conferencias", categoria: "Académicos", imagen: "https://noticias.udec.cl/wp-content/uploads/2022/09/CADEC-06-1024x683.jpg", descripcion: "Descubre las últimas tendencias en innovación y tecnología." },
     ]);
   }, []);
 

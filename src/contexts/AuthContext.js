@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from '../firebase';
 
 export const AuthContext = createContext();
 
@@ -7,28 +7,35 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const auth = getAuth();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
+      setLoading(false);
     });
+
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
   const logout = async () => {
     try {
-      await signOut(auth);
-      
+      await auth.signOut();
     } catch (error) {
       console.error("Error en logout:", error);
       throw error; 
     }
   };
 
+  const value = {
+    user,
+    loading,
+    logout
+  };
+
   return (
-    <AuthContext.Provider value={{ user, logout }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

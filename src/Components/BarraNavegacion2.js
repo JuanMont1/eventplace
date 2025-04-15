@@ -73,7 +73,7 @@ export const BarraNavegacion2 = () => {
           <Navbar.Collapse id="menu-navegacion" className="justify-content-end">
             <Nav className="alineacion-items">
               <Nav.Link as={Link} to="/eventos">
-                Eventos
+              GaleriaEventos
               </Nav.Link>
               <Nav.Link as={Link} to="/calendario">
                 Calendario

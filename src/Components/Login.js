@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { auth, googleProvider, db } from '../firebase'; 
+import { auth, googleProvider, db, ADMIN_EMAILS } from '../firebase'; 
 import udecLogo from '../archivos/img/logoyu.png';
 import '../styles/Login.css';
 
@@ -28,21 +28,37 @@ const Login = () => {
       const userRef = doc(db, "users", result.user.uid);
       const userSnap = await getDoc(userRef);
       
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          name: result.user.displayName,
-          email: result.user.email,
-          photoURL: result.user.photoURL,
-          createdAt: serverTimestamp(),
-        });
+      let userData = {
+        name: result.user.displayName,
+        email: result.user.email,
+        photoURL: result.user.photoURL,
+        lastLogin: serverTimestamp(),
+      };
+
+      // Verifica si el email del usuario está en la lista de administradores
+      if (ADMIN_EMAILS.includes(result.user.email)) {
+        userData.role = 'admin';
+        console.log("Usuario asignado como admin:", result.user.email);
       } else {
-        await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
+        userData.role = 'user';
+        console.log("Usuario asignado como usuario normal:", result.user.email);
       }
 
-      navigate('/');
+      if (!userSnap.exists()) {
+        await setDoc(userRef, { ...userData, createdAt: serverTimestamp() });
+      } else {
+        await setDoc(userRef, userData, { merge: true });
+      }
+
+      // Redirigir basado en el rol del usuario
+      if (userData.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/MisSuscripciones');
+      }
     } catch (error) {
       console.error("Error al iniciar sesión con Google:", error);
-      
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -50,12 +66,25 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Redirigir a MisSuscripciones después del inicio de sesión exitoso
-      navigate("/MisSuscripciones");
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        if (userData.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/MisSuscripciones');
+        }
+      } else {
+        navigate('/MisSuscripciones');
+      }
     } catch (error) {
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 

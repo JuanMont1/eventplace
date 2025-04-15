@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase";
+import { useAuth } from "../contexts/AuthContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { signOut, updatePassword } from "firebase/auth";
+import { db, auth } from "../firebase";
 import "../styles/UserProfile.css";
 
 const TarjetaEvento = ({ evento, manejarCalificacion }) => (
@@ -29,7 +30,8 @@ const TarjetaEvento = ({ evento, manejarCalificacion }) => (
 );
 
 const UserProfile = () => {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [suscripciones, setSuscripciones] = useState([]);
@@ -39,16 +41,22 @@ const UserProfile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserData = async (currentUser) => {
+    const fetchUserData = async () => {
       try {
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setUser({ id: currentUser.uid, ...userData });
-          setSuscripciones(userData.suscripciones || []);
-        } else {
-          setError("No se encontró el perfil del usuario");
+        if (user) {
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            setUserData({ 
+              id: user.uid, 
+              ...userData,
+              photoURL: user.photoURL || userData.photoURL || '/default-avatar.png'
+            });
+            setSuscripciones(userData.suscripciones || []);
+          } else {
+            setError("No se encontró el perfil del usuario");
+          }
         }
       } catch (err) {
         console.error("Error al obtener datos del usuario:", err);
@@ -58,17 +66,8 @@ const UserProfile = () => {
       }
     };
 
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (currentUser) {
-        fetchUserData(currentUser);
-      } else {
-        setLoading(false);
-        navigate("/login");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [navigate]);
+    fetchUserData();
+  }, [user]);
 
   const manejarCalificacion = async (id, calificacion) => {
     try {
@@ -95,14 +94,14 @@ const UserProfile = () => {
 
   const handleEditProfile = () => {
     setEditMode(true);
-    setNewName(user.name);
+    setNewName(userData.name);
   };
 
   const handleSaveProfile = async () => {
     try {
-      const userRef = doc(db, "users", user.id);
+      const userRef = doc(db, "users", userData.id);
       await updateDoc(userRef, { name: newName });
-      setUser({ ...user, name: newName });
+      setUserData({ ...userData, name: newName });
       setEditMode(false);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -122,7 +121,7 @@ const UserProfile = () => {
 
   if (loading) return <div className="loading">Cargando perfil...</div>;
   if (error) return <div className="error">Error: {error}</div>;
-  if (!user) return <div className="no-user">No se encontró información del usuario</div>;
+  if (!user || !userData) return <div className="no-user">No se encontró información del usuario</div>;
 
   return (
     <div className="user-profile">
@@ -134,7 +133,13 @@ const UserProfile = () => {
 
       <main className="profile-content">
         <section className="user-info">
-          <div className="user-avatar" style={{ backgroundImage: `url(${user.photoURL})` }}></div>
+          <div className="user-avatar">
+            <img 
+              src={userData.photoURL || '/default-avatar.png'} 
+              alt="Foto de perfil" 
+              className="profile-image"
+            />
+          </div>
           <div className="user-details">
             {editMode ? (
               <input
@@ -144,9 +149,9 @@ const UserProfile = () => {
                 className="edit-name-input"
               />
             ) : (
-              <h2>{user.name}</h2>
+              <h2>{userData.name}</h2>
             )}
-            <p className="user-role">Estudiante</p>
+            <p className="user-role"> {userData.role === 'admin' ? 'Administrador' : 'Estudiante'}</p>
             {editMode ? (
               <button onClick={handleSaveProfile} className="save-btn">Guardar Cambios</button>
             ) : (

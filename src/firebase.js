@@ -14,8 +14,9 @@ const firebaseConfig = {
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-
-
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app);
+
+
+export const ADMIN_EMAILS = ['anonimo7510@gmail.com', 'otroadmin@example.com'];
