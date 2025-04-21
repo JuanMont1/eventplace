@@ -4,9 +4,9 @@ import logo from "../archivos/img/logo.png";
 import { FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/BarraNavegacion.css";
-import { auth, db } from '../firebase'; 
-import { doc, getDoc } from 'firebase/firestore';
-import { BarraNavegacionAdmin } from './BarraNavegacionAdmin';
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { BarraNavegacionAdmin } from "./BarraNavegacionAdmin";
 
 export const BarraNavegacion = () => {
   const [desplazado, setDesplazado] = useState(false);
@@ -32,14 +32,16 @@ export const BarraNavegacion = () => {
           setUsuarioActivo({
             name: user.displayName,
             email: user.email,
-            role: userData.role || 'user',
+            role: userData.role || "user",
           });
         } else {
-          console.log("No se encontró documento de usuario, asignando rol 'user'");
+          console.log(
+            "No se encontró documento de usuario, asignando rol 'user'"
+          );
           setUsuarioActivo({
             name: user.displayName,
             email: user.email,
-            role: 'user',
+            role: "user",
           });
         }
       } else {
@@ -67,20 +69,28 @@ export const BarraNavegacion = () => {
   };
 
   const cerrarSesion = () => {
-    auth.signOut().then(() => {
-      navegar("/");
-    }).catch((error) => {
-      console.error("Error al cerrar sesión:", error);
-    });
+    auth
+      .signOut()
+      .then(() => {
+        navegar("/");
+      })
+      .catch((error) => {
+        console.error("Error al cerrar sesión:", error);
+      });
   };
 
   return (
     <>
-      {usuarioActivo && usuarioActivo.role === 'admin' ? (
-        <BarraNavegacionAdmin usuarioActivo={usuarioActivo} cerrarSesion={cerrarSesion} />
+      {usuarioActivo && usuarioActivo.role === "admin" ? (
+        <BarraNavegacionAdmin
+          usuarioActivo={usuarioActivo}
+          cerrarSesion={cerrarSesion}
+        />
       ) : (
         <>
-          <div className={`fondo-barra ${desplazado ? "con-scroll" : ""}`}></div>
+          <div
+            className={`fondo-barra ${desplazado ? "con-scroll" : ""}`}
+          ></div>
           <Navbar
             expand="lg"
             className={`barra-personalizada ${desplazado ? "con-scroll" : ""}`}
@@ -100,7 +110,10 @@ export const BarraNavegacion = () => {
               >
                 <FaBars />
               </Navbar.Toggle>
-              <Navbar.Collapse id="menu-navegacion" className="justify-content-end">
+              <Navbar.Collapse
+                id="menu-navegacion"
+                className="justify-content-end"
+              >
                 <Nav className="alineacion-items">
                   <Nav.Link as={Link} to="/eventos">
                     GaleriaEventos
@@ -111,15 +124,17 @@ export const BarraNavegacion = () => {
                   <Nav.Link as={Link} to="/MisSuscripciones">
                     Mis Suscripciones
                   </Nav.Link>
-                  <NavDropdown title="Facultades" id="menu-facultades">
-                    <NavDropdown.Item as={Link} to="/facultad/ingenieria">
-                      Ingeniería
+                  <NavDropdown title="Foro" id="menu-foro">
+                    <NavDropdown.Item as={Link} to="/foro/eventos">
+                      Foro de Eventos
                     </NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/facultad/ciencias">
-                      Ciencias
+                    <NavDropdown.Item as={Link} to="/foro/quejas-reclamos">
+                      Quejas y Reclamos
                     </NavDropdown.Item>
                   </NavDropdown>
-                  <Nav.Link as={Link} to="/proximos-eventos">Próximos Eventos</Nav.Link>
+                  <Nav.Link as={Link} to="/proximos-eventos">
+                    Próximos Eventos
+                  </Nav.Link>
                   <div className="busqueda-seccion d-none d-lg-flex ms-3">
                     <FaSearch className="icono-busqueda" />
                     <input
@@ -133,19 +148,27 @@ export const BarraNavegacion = () => {
                   <div className="seccion-usuario ms-3">
                     {usuarioActivo ? (
                       <>
-                        <NavDropdown 
+                        <NavDropdown
                           title={
                             <>
                               <FaUserCircle className="icono-usuario" />
-                              <span className="nombre-usuario">{usuarioActivo.name}</span>
+                              <span className="nombre-usuario">
+                                {usuarioActivo.name}
+                              </span>
                             </>
-                          } 
+                          }
                           id="menu-usuario"
                         >
-                          <NavDropdown.Item as={Link} to="/perfil">Ver Perfil</NavDropdown.Item>
-                          <NavDropdown.Item as={Link} to="/MisSuscripciones">Mis Suscripciones</NavDropdown.Item>
+                          <NavDropdown.Item as={Link} to="/perfil">
+                            Ver Perfil
+                          </NavDropdown.Item>
+                          <NavDropdown.Item as={Link} to="/MisSuscripciones">
+                            Mis Suscripciones
+                          </NavDropdown.Item>
                           <NavDropdown.Divider />
-                          <NavDropdown.Item onClick={cerrarSesion}>Cerrar Sesión</NavDropdown.Item>
+                          <NavDropdown.Item onClick={cerrarSesion}>
+                            Cerrar Sesión
+                          </NavDropdown.Item>
                         </NavDropdown>
                       </>
                     ) : (

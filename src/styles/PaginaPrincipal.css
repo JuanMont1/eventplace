@@ -1,0 +1,620 @@
+:root {
+  --primary-color: #2ecc71; /* Verde principal */
+  --primary-dark: #27ae60; /* Verde oscuro para hover */
+  --secondary-color: #3498db; /* Azul como color secundario */
+  --text-color: #333;
+  --background-color: #f8f9fa;
+  --accent-color: #e74c3c;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+.pagina-principal {
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  font-family: 'Roboto', sans-serif;
+}
+
+section {
+  margin-bottom: 4rem;
+}
+
+h2 {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Hero Section */
+.hero-wrapper {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  padding-top: 200px;
+}
+
+.hero {
+  text-align: center;
+  width: 100%;
+  padding: 4rem 0;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+}
+
+.hero-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.hero Button {
+  background-color: white;
+  color: var(--primary-color);
+  border: none;
+}
+
+.hero Button:hover {
+  background-color: var(--primary-dark);
+  color: white;
+}
+
+/* Elimina o comenta estas líneas si no las estás usando */
+/*.hero-section {
+  background-color: #f8f9fa;
+  padding: 100px 0;
+  padding-top: 300px;
+}
+
+.hero-section h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: #28a745;
+}*/
+
+/* Countdown Timer */
+.countdown-timer {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--primary-color);
+}
+
+.timer {
+  display: flex;
+  justify-content: space-around;
+}
+
+.time-segment {
+  text-align: center;
+}
+
+.time {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.label {
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+/* Eventos Destacados */
+.eventos-destacados-wrapper {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  background-color: #f8f9fa;
+  padding-bottom: 0;
+}
+
+.eventos-hero {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  text-align: center;
+  padding: 6rem 0;
+  margin-bottom: 4rem;
+}
+
+.eventos-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.eventos-hero h2 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.eventos-hero-subtitle {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.eventos-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.eventos-galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.evento-card {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.evento-imagen {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+}
+
+.evento-contenido {
+  padding: 1.5rem;
+}
+
+.evento-contenido h3 {
+  margin-bottom: 1rem;
+}
+
+.evento-detalles {
+  margin-bottom: 1rem;
+}
+
+.evento-detalles p {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.evento-detalles p svg {
+  margin-right: 0.5rem;
+}
+
+.btn-ver-mas {
+  width: 100%;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.btn-ver-mas:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Campus Map */
+.campus-map-container {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  background-color: #f8f9fa;
+  padding:  4rem 0;
+}
+
+.campus-map-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  padding-bottom: 2rem;
+}
+
+.campus-map-container h2 {
+  font-size: 2.5rem;
+  color: #2ecc71;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.campus-map-container h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.campus-map {
+  height: 600px;
+  width: 100%;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.campus-map .leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+.campus-map-section {
+  padding: 0;
+  background-color: #f8f9fa;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+.campus-map-section h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #53ee67;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Calendario Resumen */
+.eventos-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.calendario-eventos {
+  padding: 80px 0;
+}
+
+.evento-item {
+  display: flex;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.evento-fecha {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.evento-contenido {
+  padding: 1rem;
+  flex-grow: 1;
+}
+
+/* Galeria de Imágenes */
+.galeria-imagenes {
+  padding: 80px 0;
+}
+
+.galeria-imagenes img {
+  transition: transform 0.3s ease;
+}
+
+.galeria-imagenes img:hover {
+  transform: scale(1.05);
+}
+
+/* Últimos Anuncios */
+.anuncios-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.anuncio-item {
+  background-color: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.anuncio-icono {
+  color: var(--primary-color);
+}
+
+/* Estadísticas Eventos */
+.estadisticas-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.estadisticas {
+  background-color: #28a745;
+}
+
+.estadistica-item {
+  text-align: center;
+  flex: 1;
+  min-width: 200px;
+}
+
+.estadistica-numero {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.estadisticas h3 {
+  font-weight: bold;
+}
+
+/* Testimonios Estudiantes */
+.testimonios-estudiantes .carousel-inner {
+  padding-bottom: 3rem;
+}
+
+.testimonios {
+  padding: 80px 0;
+}
+
+.testimonio-card {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.testimonios .carousel-item {
+  min-height: 350px;
+}
+
+.estrella {
+  color: var(--primary-color);
+}
+
+/* Boletín Informativo */
+.boletin-informativo {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 3rem;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.boletin {
+  padding: 80px 0;
+  background-color: #f8f9fa;
+}
+
+.boletin-form .input-group {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.boletin-informativo Button {
+  background-color: white;
+  color: var(--primary-color);
+  border: none;
+}
+
+.boletin-informativo Button:hover {
+  background-color: var(--primary-dark);
+  color: white;
+}
+
+.btn-ver-mas, .btn-ver-todos, .btn-ver-todos-anuncios {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.btn-ver-mas:hover, .btn-ver-todos:hover, .btn-ver-todos-anuncios:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .timer {
+    flex-wrap: wrap;
+  }
+
+  .time-segment {
+    flex-basis: 50%;
+    margin-bottom: 1rem;
+  }
+}
+/* Sección principal */
+.eventos-destacados {
+  padding: 3rem 2rem;
+  background-color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.eventos-destacados h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1e7f4f;
+  margin-bottom: 2.5rem;
+}
+
+/* Galería responsive */
+.eventos-galeria {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .eventos-galeria {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tarjeta de evento */
+.evento-item {
+  background-color: #fff;
+  border: 2px solid #e0f2f1;
+  border-radius: 1rem;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  cursor: pointer;
+}
+
+.evento-item:hover {
+  transform: scale(1.03);
+  border-color: #2ecc71;
+}
+
+/* Imagen de fondo del evento */
+.evento-imagen {
+  height: 12rem;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+/* Contenido encima de la imagen */
+.evento-overlay {
+  padding: 1.5rem;
+  background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+}
+
+/* Título del evento */
+.evento-overlay h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e7f4f;
+  margin-bottom: 0.5rem;
+}
+
+/* Descripción */
+.evento-overlay p {
+  color: #444;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Detalles del evento */
+.evento-detalles p {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* Botón de ver más */
+.btn-ver-mas {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background-color: #2ecc71;
+  border: none;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-ver-mas:hover {
+  background-color: #27ae60;
+}
+
+/* Animación de fondo al hacer hover */
+.evento-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #2ecc71;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+  border-radius: 1rem;
+}
+
+.evento-item:hover::after {
+  opacity: 0.07;
+}
+
+/* Modal personalizado */
+.modal-content {
+  border-radius: 1rem;
+  border: 2px solid #2ecc71;
+}
+
+.modal-header {
+  background-color: #e8f5e9;
+  border-bottom: none;
+}
+
+.modal-title {
+  color: #1e7f4f;
+  font-weight: bold;
+}
+
+.modal-body {
+  background-color: #fff;
+}
+
+.modal-body p {
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+.modal-footer {
+  border-top: none;
+}
+
+/* Estilo para el input */
+.form-control {
+  border-radius: 0.5rem;
+  border: 1px solid #cfd8dc;
+  padding: 0.6rem;
+}
+
+.form-control:focus {
+  border-color: #2ecc71;
+  box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+}
+
+/* Botón de registrar */
+button[type="submit"] {
+  background-color: #2ecc71;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #27ae60;
+}

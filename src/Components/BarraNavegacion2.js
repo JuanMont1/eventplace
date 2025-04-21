@@ -73,23 +73,27 @@ export const BarraNavegacion2 = () => {
           <Navbar.Collapse id="menu-navegacion" className="justify-content-end">
             <Nav className="alineacion-items">
               <Nav.Link as={Link} to="/eventos">
-              GaleriaEventos
+                Galería de Eventos
+              </Nav.Link>
+              <Nav.Link as={Link} to="/proximos-eventos">
+                Próximos Eventos
               </Nav.Link>
               <Nav.Link as={Link} to="/calendario">
                 Calendario
               </Nav.Link>
-              <Nav.Link as={Link} to="/MisSuscripciones">
-                Mis Suscripciones
-              </Nav.Link>
-              <NavDropdown title="Facultades" id="menu-facultades">
-                <NavDropdown.Item as={Link} to="/facultad/ingenieria">
-                  Ingeniería
+              <NavDropdown title="Foro" id="menu-foro">
+                <NavDropdown.Item as={Link} to="/foro/eventos">
+                  Foro de Eventos
                 </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/facultad/ciencias">
-                  Ciencias
+                <NavDropdown.Item as={Link} to="/foro/quejas-reclamos">
+                  Quejas y Reclamos
                 </NavDropdown.Item>
               </NavDropdown>
-              <Nav.Link as={Link} to="/proximos-eventos">Próximos Eventos</Nav.Link>
+              {user && (
+                <Nav.Link as={Link} to="/MisSuscripciones">
+                  Mis Suscripciones
+                </Nav.Link>
+              )}
               <div className="busqueda-seccion d-none d-lg-flex ms-3">
                 <FaSearch className="icono-busqueda" />
                 <input
