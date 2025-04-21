@@ -1,4 +1,3 @@
-
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
@@ -9,7 +8,7 @@ import PieDePagina from './Components/pieDePagina';
 import UserProfile from './Components/UserProfile';
 import Login from './Components/Login';
 import Register from './Components/register';
-import { BrowserRouter as Router, Route, Routes, Navigate, useLocation} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import MisSuscripciones from './Components/MisSuscripciones';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProximosEventos from './Components/proximos-eventos';
@@ -18,6 +17,9 @@ import AdminPage from './Components/AdminPage';
 import PaginaCalendario from './Components/PaginaCalendario';
 import PaginaPrincipal from './Components/PaginaPrincipal';
 import ForoEventos from './Components/ForoEventos';
+import AgregarEvento from './Components/AgregarEvento';
+import EventosDisponibles from './Components/EventosDisponibles';
+import GestionEventos from './Components/GestionEventos';
 
 // rutas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -39,12 +41,26 @@ const AppContent = () => {
   const location = useLocation();
   const { user } = useAuth();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const isLoginRoute = location.pathname === '/login';
-  const hideLayout = ['/login', '/register', '/perfil', '/proximos-eventos', '/eventos', '/admin/perfil','/foro/eventos'].includes(location.pathname);
+
+  // Rutas donde NO debe aparecer la navbar
+  const noNavbarRoutes = ['/login', '/perfil', '/admin/perfil', '/proximos-eventos', '/eventos'];
+  const isNoNavbarRoute = noNavbarRoutes.includes(location.pathname);
+
+  // Rutas donde NO debe aparecer el footer
+  const hideFooter = [
+    '/login',
+    '/register',
+    '/perfil',
+    '/proximos-eventos',
+    '/eventos',
+    '/admin/perfil',
+    '/foro/eventos',
+    '/admin/gestionar-eventos'
+  ];
 
   return (
     <div className="App">
-      {!hideLayout && !isLoginRoute && (
+      {!isNoNavbarRoute && (
         isAdminRoute ? <BarraNavegacionAdmin /> : (user ? <BarraNavegacion2 /> : <BarraNavegacion />)
       )}
       <Routes>
@@ -75,13 +91,33 @@ const AppContent = () => {
             <AdminPage />
           </ProtectedRoute>
         } />
+        <Route path="/admin/agregar-evento" element={
+          <ProtectedRoute>
+            <AgregarEvento />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/gestionar-eventos" element={
+          <ProtectedRoute>
+            <GestionEventos />
+          </ProtectedRoute>
+        } />
         <Route path="/foro/eventos" element={
           <ProtectedRoute>
             <ForoEventos />
           </ProtectedRoute>
         } />
+        <Route 
+          path="/admin" 
+          element={
+            user && user.isAdmin ? (
+              <Navigate to="/admin/gestionar-eventos" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
       </Routes>
-      {!hideLayout && !isLoginRoute && <PieDePagina />}
+      {!hideFooter && !isNoNavbarRoute && <PieDePagina />}
     </div>
   );
 };

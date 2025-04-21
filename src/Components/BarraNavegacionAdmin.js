@@ -2,7 +2,8 @@ import React from 'react';
 import { Navbar, Container, Nav, NavDropdown, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../archivos/img/logo.png";
-import { useAuth } from '../contexts/AuthContext'; // Asegúrate de que la ruta de importación sea correcta
+import { useAuth } from '../contexts/AuthContext';
+import '../styles/BarraNavegacion.css'; 
 
 export const BarraNavegacionAdmin = () => {
   const { user, logout } = useAuth();
@@ -21,23 +22,39 @@ export const BarraNavegacionAdmin = () => {
     navigate('/admin/perfil');
   };
 
+  const handleAddEvent = () => {
+    navigate('/admin/agregar-evento');
+  };
+
   return (
-    <Navbar expand="lg" className="barra-personalizada barra-admin">
+    <Navbar bg="light" expand="lg" className="barra-personalizada">
       <Container fluid>
         <Navbar.Brand as={Link} to="/admin-dashboard">
-          <img src={logo} alt="Logo" className="logo-barra" />
-          <span className="ms-2">Panel de Administración</span>
+          <img src={logo} alt="Logo" height="30" className="d-inline-block align-top logo-barra" />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="admin-navbar-nav" />
-        <Navbar.Collapse id="admin-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/admin-eventos">Gestionar Eventos</Nav.Link>
-            <Nav.Link as={Link} to="/admin-usuarios">Gestionar Usuarios</Nav.Link>
-            <Nav.Link as={Link} to="/admin-reportes">Reportes</Nav.Link>
-          </Nav>
+        <Navbar.Collapse id="admin-navbar-nav" className="justify-content-end">
           <Nav>
-            <NavDropdown title={user ? `Admin: ${user.name || user.email}` : 'Cargando...'} id="admin-nav-dropdown">
-              <NavDropdown.Item as={Link} to="/admin/perfil">Ver Perfil</NavDropdown.Item>
+            <Nav.Link as={Link} to="/admin/dashboard">Dashboard</Nav.Link>
+            <NavDropdown title="Eventos" id="admin-nav-dropdown">
+              <NavDropdown.Item as={Link} to="/admin/agregar-evento">Agregar Evento</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/admin/gestionar-eventos">Gestionar Eventos</NavDropdown.Item>
+            </NavDropdown>
+            <Nav.Link as={Link} to="/admin-usuarios">Usuarios</Nav.Link>
+            <Nav.Link as={Link} to="/admin-reportes">Reportes</Nav.Link>
+            <Button 
+              variant="success" 
+              className="mx-2"
+              onClick={handleAddEvent}
+            >
+              Agregar Nuevo Evento
+            </Button>
+            <NavDropdown 
+              title={user ? `${user.name || user.email}` : 'Cargando...'} 
+              id="admin-nav-dropdown"
+              align="end"
+            >
+              <NavDropdown.Item onClick={handleProfileClick}>Ver Perfil</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={handleLogout}>Cerrar Sesión</NavDropdown.Item>
             </NavDropdown>

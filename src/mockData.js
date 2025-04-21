@@ -1,50 +1,27 @@
-export const mockEventos = [
-  {
-    id: 1,
-    nombre: "Conferencia de Inteligencia Artificial",
-    categoria: "Tecnología",
-    fecha: "2023-07-15",
-    facultad: "Ingeniería",
-    imagen: "https://th.bing.com/th/id/OIP.5IiUWelqh5jm-GIGS_JxHgHaE7?w=257&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
-    descripcion: "Una conferencia sobre los últimos avances en IA."
-  },
-  {
-    id: 2,
-    nombre: "Concierto de Música Clásica",
-    categoria: "Cultural",
-    fecha: "2023-07-20",
-    facultad: "Artes",
-    imagen: "https://th.bing.com/th/id/OIP.5IiUWelqh5jm-GIGS_JxHgHaE7?w=257&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
-    descripcion: "Un concierto con las mejores piezas de música clásica."
-  },
-  {
-    id: 3,
-    nombre: "Torneo de Fútbol Interfacultades",
-    categoria: "Deportivo",
-    fecha: "2023-07-25",
-    facultad: "Deportes",
-    imagen: "https://th.bing.com/th/id/OIP.5IiUWelqh5jm-GIGS_JxHgHaE7?w=257&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
-    descripcion: "Competencia deportiva entre las diferentes facultades."
-  },
+let mockEventos = JSON.parse(localStorage.getItem('mockEventos')) || [];
 
-  {
-    id: 4,
-    nombre: "Torneo de Fútbol Interfacultades",
-    categoria: "Deportivo",
-    fecha: "2023-07-25",
-    facultad: "Deportes",
-    imagen: "https://th.bing.com/th/id/OIP.5IiUWelqh5jm-GIGS_JxHgHaE7?w=257&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
-    descripcion: "Competencia deportiva entre las diferentes facultades."
-  },
+export const getMockEventos = () => {
+  return mockEventos;
+};
 
-  {
-    id: 5,
-    nombre: "Torneo de Fútbol Interfacultades",
-    categoria: "Deportivo",
-    fecha: "2023-07-25",
-    facultad: "Deportes",
-    imagen: "https://th.bing.com/th/id/OIP.5IiUWelqh5jm-GIGS_JxHgHaE7?w=257&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
-    descripcion: "Competencia deportiva entre las diferentes facultades."
-  }
-  // Agrega más eventos de ejemplo aquí...
-];
+export const addMockEvento = (nuevoEvento) => {
+  const eventoConId = { ...nuevoEvento, id: Date.now().toString() };
+  mockEventos.push(eventoConId);
+  // Guardar en localStorage
+  localStorage.setItem('mockEventos', JSON.stringify(mockEventos));
+  return eventoConId;
+};
+
+export const deleteMockEvento = (id) => {
+  mockEventos = mockEventos.filter(evento => evento.id !== id);
+  // Actualizar localStorage
+  localStorage.setItem('mockEventos', JSON.stringify(mockEventos));
+};
+
+// Si quieres inicializar con algunos eventos por defecto, puedes hacerlo así:
+if (mockEventos.length === 0) {
+  const eventosIniciales = [
+    // ... tus eventos iniciales ...
+  ];
+  eventosIniciales.forEach(addMockEvento);
+}

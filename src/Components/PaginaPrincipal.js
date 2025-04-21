@@ -6,7 +6,9 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../styles/PaginaPrincipal.css';
 import CountUp from 'react-countup';
-import welcomeGif from '../archivos/img/abeja.gif'; 
+import welcomeGif from '../archivos/img/abeja.gif';
+import { BarraNavegacion } from './BarraNavegacion';
+
 
 const Hero = () => {
   return (
@@ -480,6 +482,7 @@ const BoletinInformativo = () => {
 const PaginaPrincipal = () => {
   return (
     <div className="pagina-principal">
+      <BarraNavegacion />
       <Hero />
       <CountdownTimer />
       <EventosDestacados />

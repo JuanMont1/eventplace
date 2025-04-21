@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export const AuthContext = createContext();
 
@@ -10,8 +12,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      if (firebaseUser) {
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        const userData = userDoc.data();
+        setUser({
+          ...firebaseUser,
+          isAdmin: userData?.role === 'admin',
+          ...userData
+        });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -27,10 +39,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const login = async (email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+      const userData = userDoc.data();
+      setUser({
+        ...userCredential.user,
+        isAdmin: userData?.role === 'admin',
+        ...userData
+      });
+    } catch (error) {
+      console.error("Error en login:", error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     loading,
-    logout
+    logout,
+    login
   };
 
   return (

@@ -5,6 +5,7 @@ import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { auth, googleProvider, db, ADMIN_EMAILS } from '../firebase'; 
 import udecLogo from '../archivos/img/logoyu.png';
 import '../styles/Login.css';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
   const [fadeOut, setFadeOut] = useState(false);
@@ -13,6 +14,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleRegisterClick = () => {
     setFadeOut(true);
@@ -68,7 +70,7 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await login(email, password);
       const userRef = doc(db, "users", auth.currentUser.uid);
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {

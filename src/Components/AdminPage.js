@@ -1,12 +1,14 @@
 import React from 'react';
 import { BarraNavegacionAdmin } from './BarraNavegacionAdmin';
+import { Outlet } from 'react-router-dom';
 
 const AdminPage = () => {
   return (
-    <div>
+    <div className="admin-layout">
       <BarraNavegacionAdmin />
-      <h1>Panel de Administrador</h1>
-      
+      <main className="admin-content">
+        <Outlet />
+      </main>
     </div>
   );
 };

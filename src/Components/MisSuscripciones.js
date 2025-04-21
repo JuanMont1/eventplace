@@ -13,26 +13,11 @@ import { BarraNavegacion } from '../Components/BarraNavegacion';
 import { FaGraduationCap, FaMusic, FaFootballBall, FaPalette, FaCode } from 'react-icons/fa';
 import { auth, db } from '../firebase';
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
-import { mockEventos } from '../mockData';
-
-/* funcion para obtener la api de los eventos 
-
-const fetchEventos = async () => {
-  try {
-    const response = await fetch('URL_DE_TU_API/eventos'); // Reemplaza con la URL real de tu API
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching eventos:", error);
-    return [];
-  }
-}; */
+import { getMockEventos } from '../mockData';
+import EventosDisponibles from '../Components/EventosDisponibles'; // Asegúrate que esta ruta esté bien
 
 const MisSuscripciones = () => {
-  const [eventos, setEventos] = useState([]);
+  const [eventosDisponibles, setEventosDisponibles] = useState([]);
   const [suscripciones, setSuscripciones] = useState([]);
   const [filtro, setFiltro] = useState("");
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
@@ -47,6 +32,19 @@ const MisSuscripciones = () => {
   ];
 
   useEffect(() => {
+    const fetchEventos = async () => {
+      // Obtener eventos mock
+      const eventosMock = getMockEventos();
+      
+      // Si tienes eventos de Firebase, puedes combinarlos aquí
+      // const eventosFirebase = await fetchEventosFromFirebase();
+      // const todosLosEventos = [...eventosMock, ...eventosFirebase];
+
+      setEventosDisponibles(eventosMock);
+    };
+
+    fetchEventos();
+
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
       if (currentUser) {
@@ -64,10 +62,6 @@ const MisSuscripciones = () => {
       }
     });
 
-    setEventos(mockEventos);
-
-   // fetchEventos().then(data => setEventos(data));
-
     return () => unsubscribe();
   }, []);
 
@@ -81,29 +75,26 @@ const MisSuscripciones = () => {
     try {
       const userSnap = await getDoc(userRef);
       let currentSuscripciones = userSnap.exists() ? (userSnap.data().suscripciones || []) : [];
-      
+
       if (currentSuscripciones.some(e => e.id === evento.id)) {
-        // Cancelar suscripción
         currentSuscripciones = currentSuscripciones.filter(e => e.id !== evento.id);
-        await setDoc(userRef, { suscripciones: currentSuscripciones }, { merge: true });
       } else {
-        // Suscribirse
         currentSuscripciones.push(evento);
-        await setDoc(userRef, { suscripciones: currentSuscripciones }, { merge: true });
       }
-      
+
+      await setDoc(userRef, { suscripciones: currentSuscripciones }, { merge: true });
       setSuscripciones(currentSuscripciones);
     } catch (error) {
       console.error("Error al actualizar suscripciones:", error);
     }
   };
 
-  const eventosFiltrados = eventos.filter(
+  const eventosFiltrados = eventosDisponibles.filter(
     (evento) =>
       (categoriaSeleccionada ? evento.categoria === categoriaSeleccionada : true) &&
       (evento.nombre.toLowerCase().includes(filtro.toLowerCase()) ||
-       evento.categoria.toLowerCase().includes(filtro.toLowerCase()) ||
-       evento.facultad.toLowerCase().includes(filtro.toLowerCase()))
+        evento.categoria.toLowerCase().includes(filtro.toLowerCase()) ||
+        evento.facultad.toLowerCase().includes(filtro.toLowerCase()))
   );
 
   const isSuscrito = (eventoId) => {
@@ -113,7 +104,8 @@ const MisSuscripciones = () => {
   return (
     <div>
       <BarraNavegacion />
-      
+
+      {/* Sección 1: Bienvenida */}
       <section className="bienvenida">
         <Container>
           <Row className="align-items-center">
@@ -140,13 +132,13 @@ const MisSuscripciones = () => {
         </Container>
       </section>
 
-      {/* Sección 2: Carrusel  */}
+      {/* Sección 2: Carrusel */}
       <section className="eventos-destacados">
         <Container>
           <h2 className="text-center mb-3">Eventos Destacados</h2>
           <p className="text-center mb-4">Descubre los eventos más emocionantes y populares de nuestra universidad</p>
-          <Carousel fade controls={true} indicators={true} className="carrusel-container">
-            {eventos.slice(0, 3).map((evento) => (
+          <Carousel fade controls indicators className="carrusel-container">
+            {eventosDisponibles.slice(0, 3).map((evento) => (
               <Carousel.Item key={evento.id}>
                 <div className="carrusel-item">
                   <div className="carrusel-imagen-container">
@@ -169,73 +161,27 @@ const MisSuscripciones = () => {
         </Container>
       </section>
 
-      {/* Sección 4: Lista de Eventos y Categorías */}
-      <section className="mis-suscripciones-container">
-        <Container>
-          <h2 className="text-center">Eventos disponibles</h2>
-          <div className="categories-container mb-4">
-            {categories.map(category => (
-              <div 
-                key={category.id} 
-                className={`category-item ${categoriaSeleccionada === category.name ? 'selected' : ''}`}
-                onClick={() => setCategoriaSeleccionada(prev => prev === category.name ? null : category.name)}
-                style={{ backgroundColor: category.color }}
-              >
-                <div className="category-icon">{category.icon}</div>
-                <h3>{category.name}</h3>
-              </div>
-            ))}
-          </div>
-          <Form className="search-form mb-4">
-            <Form.Group>
-              <Form.Control
-                type="text"
-                placeholder="Buscar eventos..."
-                value={filtro}
-                onChange={(e) => setFiltro(e.target.value)}
-              />
-            </Form.Group>
-          </Form>
-          <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-            {eventosFiltrados.map((evento) => (
-              <Col key={evento.id}>
-                <Card className="evento-card h-100">
-                  <Card.Img variant="top" src={evento.imagen} />
-                  <Card.Body>
-                    <Card.Title>{evento.nombre}</Card.Title>
-                    <Card.Text>
-                      <strong>Categoría:</strong> {evento.categoria}
-                      <br />
-                      <strong>Fecha:</strong> {evento.fecha}
-                      <br />
-                      <strong>Facultad:</strong> {evento.facultad}
-                    </Card.Text>
-                    <div className="button-container">
-                      <Button
-                        className={isSuscrito(evento.id) ? "btn-cancelar" : "btn-suscribir"}
-                        onClick={() => toggleSuscripcion(evento)}
-                      >
-                        {isSuscrito(evento.id)
-                          ? "Cancelar suscripción"
-                          : "Suscribirse"}
-                      </Button>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </Container>
-      </section>
+      {/* Sección 3: Lista de Eventos Filtrados */}
+      <EventosDisponibles 
+        eventosFiltrados={eventosFiltrados}
+        categoriaSeleccionada={categoriaSeleccionada}
+        setCategoriaSeleccionada={setCategoriaSeleccionada}
+        filtro={filtro}
+        setFiltro={setFiltro}
+        isSuscrito={isSuscrito}
+        toggleSuscripcion={toggleSuscripcion}
+      />
 
-      {/* Sección 3: Video de Promoción */}
+      {/* Sección 4: Video Promocional */}
       <section className="video-eventos py-5">
         <Container fluid>
           <Row className="justify-content-center align-items-center">
             <Col lg={5} className="mb-4 mb-lg-0">
               <div className="video-info pe-lg-4">
                 <h2 className="mb-4">Descubre la Experiencia EventPlace</h2>
-                <p className="mb-4">Sumérgete en el mundo de eventos emocionantes que te esperan en la Universidad de Cundinamarca. Desde conferencias académicas hasta conciertos vibrantes, hay algo para todos.</p>
+                <p className="mb-4">
+                  Sumérgete en el mundo de eventos emocionantes que te esperan en la Universidad de Cundinamarca. Desde conferencias académicas hasta conciertos vibrantes, hay algo para todos.
+                </p>
                 <ul className="list-unstyled mb-4">
                   <li><i className="fas fa-check-circle text-success me-2"></i> Eventos académicos de primer nivel</li>
                   <li><i className="fas fa-check-circle text-success me-2"></i> Actividades culturales enriquecedoras</li>
@@ -261,7 +207,6 @@ const MisSuscripciones = () => {
           </Row>
         </Container>
       </section>
-      
     </div>
   );
 };
