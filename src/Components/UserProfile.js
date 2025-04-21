@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { signOut, updatePassword } from "firebase/auth";
 import { db, auth } from "../firebase";
 import "../styles/UserProfile.css";
@@ -45,23 +45,30 @@ const UserProfile = () => {
       try {
         if (user) {
           const userRef = doc(db, "users", user.uid);
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) {
-            const userData = userSnap.data();
-            setUserData({ 
-              id: user.uid, 
-              ...userData,
-              photoURL: user.photoURL || userData.photoURL || '/default-avatar.png'
-            });
-            setSuscripciones(userData.suscripciones || []);
-          } else {
-            setError("No se encontró el perfil del usuario");
-          }
+          const unsubscribe = onSnapshot(userRef, (doc) => {
+            if (doc.exists()) {
+              const userData = doc.data();
+              setUserData({ 
+                id: user.uid, 
+                ...userData,
+                photoURL: user.photoURL || userData.photoURL || '/default-avatar.png'
+              });
+              const validSuscripciones = (userData.suscripciones || []).filter(evento => 
+                evento && evento.id && evento.nombre && evento.fecha && evento.categoria && evento.facultad
+              );
+              setSuscripciones(validSuscripciones);
+              console.log("Suscripciones cargadas:", validSuscripciones); // Log para depuración
+            } else {
+              setError("No se encontró el perfil del usuario");
+            }
+            setLoading(false);
+          });
+
+          return () => unsubscribe();
         }
       } catch (err) {
         console.error("Error al obtener datos del usuario:", err);
         setError("Error al cargar el perfil");
-      } finally {
         setLoading(false);
       }
     };

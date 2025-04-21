@@ -11,9 +11,25 @@ import {
 import "../styles/MisSuscripciones.css";
 import { BarraNavegacion } from '../Components/BarraNavegacion';
 import { FaGraduationCap, FaMusic, FaFootballBall, FaPalette, FaCode } from 'react-icons/fa';
-import PieDePagina from '../Components/pieDePagina';
 import { auth, db } from '../firebase';
-import { doc, getDoc, setDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { mockEventos } from '../mockData';
+
+/* funcion para obtener la api de los eventos 
+
+const fetchEventos = async () => {
+  try {
+    const response = await fetch('URL_DE_TU_API/eventos'); // Reemplaza con la URL real de tu API
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching eventos:", error);
+    return [];
+  }
+}; */
 
 const MisSuscripciones = () => {
   const [eventos, setEventos] = useState([]);
@@ -34,75 +50,26 @@ const MisSuscripciones = () => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        fetchUserSuscripciones(currentUser.uid);
+        const userRef = doc(db, "users", currentUser.uid);
+        const unsubscribeUser = onSnapshot(userRef, (doc) => {
+          if (doc.exists()) {
+            setSuscripciones(doc.data().suscripciones || []);
+          } else {
+            setSuscripciones([]);
+          }
+        });
+        return () => unsubscribeUser();
+      } else {
+        setSuscripciones([]);
       }
     });
 
+    setEventos(mockEventos);
+
+   // fetchEventos().then(data => setEventos(data));
+
     return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    const eventosEjemplo = [
-      {
-        id: 1,
-        nombre: "Conferencia de Ingeniería",
-        categoria: "Académico",
-        imagen: "https://th.bing.com/th/id/OIP.28u0JEjQVvNlHpTgYMe_kAHaEK?w=290&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
-        fecha: "2023-12-15",
-        facultad: "Ingeniería",
-      },
-      {
-        id: 2,
-        nombre: "Concierto de Jazz",
-        categoria: "Cultural",
-        imagen:
-          "https://th.bing.com/th/id/OIP.VgM9fmeJxlvVFOgdIglp9wHaE8?rs=1&pid=ImgDetMain",
-        fecha: "2023-12-20",
-        facultad: "Artes",
-      },
-      {
-        id: 3,
-        nombre: "Torneo de Fútbol",
-        categoria: "Deportivo",
-        imagen:
-          "https://th.bing.com/th/id/OIP.waotyyz8eQY87BvxuzYxWQHaEK?rs=1&pid=ImgDetMain",
-        fecha: "2024-01-10",
-        facultad: "Deportes",
-      },
-      {
-        id: 4,
-        nombre: "Taller de Programación",
-        categoria: "Tecnología",
-        imagen:
-          "https://th.bing.com/th/id/OIP.VgM9fmeJxlvVFOgdIglp9wHaE8?rs=1&pid=ImgDetMain",
-        fecha: "2024-01-15",
-        facultad: "Ciencias de la Computación",
-      },
-      {
-        id: 5,
-        nombre: "Festival de Cine",
-        categoria: "Artístico",
-        imagen:
-          "https://th.bing.com/th/id/OIP.VgM9fmeJxlvVFOgdIglp9wHaE8?rs=1&pid=ImgDetMain",
-        fecha: "2024-02-01",
-        facultad: "Comunicación",
-      },
-    ];
-    setEventos(eventosEjemplo);
-  }, []);
-
-  const fetchUserSuscripciones = async (userId) => {
-    try {
-      const userRef = doc(db, "users", userId);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        setSuscripciones(userData.suscripciones || []);
-      }
-    } catch (error) {
-      console.error("Error al obtener suscripciones:", error);
-    }
-  };
 
   const toggleSuscripcion = async (evento) => {
     if (!user) {
@@ -112,19 +79,20 @@ const MisSuscripciones = () => {
 
     const userRef = doc(db, "users", user.uid);
     try {
-      if (suscripciones.some(e => e.id === evento.id)) {
+      const userSnap = await getDoc(userRef);
+      let currentSuscripciones = userSnap.exists() ? (userSnap.data().suscripciones || []) : [];
+      
+      if (currentSuscripciones.some(e => e.id === evento.id)) {
         // Cancelar suscripción
-        await setDoc(userRef, {
-          suscripciones: arrayRemove(evento)
-        }, { merge: true });
-        setSuscripciones(prev => prev.filter(e => e.id !== evento.id));
+        currentSuscripciones = currentSuscripciones.filter(e => e.id !== evento.id);
+        await setDoc(userRef, { suscripciones: currentSuscripciones }, { merge: true });
       } else {
         // Suscribirse
-        await setDoc(userRef, {
-          suscripciones: arrayUnion(evento)
-        }, { merge: true });
-        setSuscripciones(prev => [...prev, evento]);
+        currentSuscripciones.push(evento);
+        await setDoc(userRef, { suscripciones: currentSuscripciones }, { merge: true });
       }
+      
+      setSuscripciones(currentSuscripciones);
     } catch (error) {
       console.error("Error al actualizar suscripciones:", error);
     }
@@ -137,6 +105,10 @@ const MisSuscripciones = () => {
        evento.categoria.toLowerCase().includes(filtro.toLowerCase()) ||
        evento.facultad.toLowerCase().includes(filtro.toLowerCase()))
   );
+
+  const isSuscrito = (eventoId) => {
+    return suscripciones.some(e => e.id === eventoId);
+  };
 
   return (
     <div>
@@ -240,10 +212,10 @@ const MisSuscripciones = () => {
                     </Card.Text>
                     <div className="button-container">
                       <Button
-                        className={suscripciones.some((e) => e.id === evento.id) ? "btn-cancelar" : "btn-suscribir"}
+                        className={isSuscrito(evento.id) ? "btn-cancelar" : "btn-suscribir"}
                         onClick={() => toggleSuscripcion(evento)}
                       >
-                        {suscripciones.some((e) => e.id === evento.id)
+                        {isSuscrito(evento.id)
                           ? "Cancelar suscripción"
                           : "Suscribirse"}
                       </Button>
