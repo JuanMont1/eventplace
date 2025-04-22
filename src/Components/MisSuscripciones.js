@@ -8,19 +8,12 @@ import {
 } from "react-bootstrap";
 import "../styles/MisSuscripciones.css";
 import { BarraNavegacion } from '../Components/BarraNavegacion';
-import { FaGraduationCap, FaMusic, FaFootballBall, FaPalette, FaCode } from 'react-icons/fa';
 import { auth, db } from '../firebase';
 import { doc, getDoc, setDoc, onSnapshot, collection, getDocs } from "firebase/firestore";
 import EventosDisponibles from '../Components/EventosDisponibles'; 
 import PieDePagina from "./pieDePagina";
 
-const categories = [
-  { id: 1, name: 'Académico', icon: <FaGraduationCap />, color: '#4285F4' },
-  { id: 2, name: 'Cultural', icon: <FaMusic />, color: '#EA4335' },
-  { id: 3, name: 'Deportivo', icon: <FaFootballBall />, color: '#34A853' },
-  { id: 4, name: 'Artístico', icon: <FaPalette />, color: '#FBBC05' },
-  { id: 5, name: 'Tecnología', icon: <FaCode />, color: '#FF6D01' },
-];
+
 
 const MisSuscripciones = () => {
   const [eventosDisponibles, setEventosDisponibles] = useState([]);
@@ -28,6 +21,41 @@ const MisSuscripciones = () => {
   const [filtro, setFiltro] = useState("");
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [user, setUser] = useState(null);
+  const [contadorEventos, setContadorEventos] = useState({});
+
+  const sincronizarContadores = useCallback(async () => {
+    if (!user) return;
+
+    const contadorRef = doc(db, "contadores", "eventos");
+    const eventosRef = collection(db, "eventos");
+
+    try {
+      const eventosSnapshot = await getDocs(eventosRef);
+      let newContadores = {};
+
+      // Inicializar contadores para todos los eventos
+      eventosSnapshot.forEach((doc) => {
+        newContadores[doc.id] = 0;
+      });
+
+      // Contar suscripciones
+      const querySnapshot = await getDocs(collection(db, "users"));
+      querySnapshot.forEach((userDoc) => {
+        const userSuscripciones = userDoc.data().suscripciones || [];
+        userSuscripciones.forEach(evento => {
+          if (newContadores.hasOwnProperty(evento.id)) {
+            newContadores[evento.id]++;
+          }
+        });
+      });
+
+      await setDoc(contadorRef, newContadores);
+      setContadorEventos(newContadores);  // Actualiza el estado local
+      console.log("Contadores sincronizados:", newContadores);
+    } catch (error) {
+      console.error("Error al sincronizar contadores:", error);
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetchEventos = async () => {
@@ -55,6 +83,7 @@ const MisSuscripciones = () => {
             const userSuscripciones = doc.data().suscripciones || [];
             setSuscripciones(userSuscripciones);
             console.log("Suscripciones actualizadas:", userSuscripciones);
+            sincronizarContadores();
           } else {
             setSuscripciones([]);
           }
@@ -65,8 +94,28 @@ const MisSuscripciones = () => {
       }
     });
 
-    return () => unsubscribe();
-  }, []);
+    const contadorRef = doc(db, "contadores", "eventos");
+    const unsubscribeContador = onSnapshot(contadorRef, (doc) => {
+      if (doc.exists()) {
+        const nuevosContadores = doc.data();
+        
+        Object.keys(nuevosContadores).forEach(key => {
+          if (nuevosContadores[key] < 0) {
+            nuevosContadores[key] = 0;
+          }
+        });
+        setContadorEventos(nuevosContadores);
+        console.log("Contadores actualizados desde Firestore:", nuevosContadores);
+      } else {
+        setContadorEventos({});
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeContador();
+    };
+  }, []); 
 
   const toggleSuscripcion = useCallback(async (evento) => {
     if (!user) {
@@ -75,22 +124,48 @@ const MisSuscripciones = () => {
     }
 
     const userRef = doc(db, "users", user.uid);
+    const contadorRef = doc(db, "contadores", "eventos");
+
     try {
       const userSnap = await getDoc(userRef);
       let currentSuscripciones = userSnap.exists() ? (userSnap.data().suscripciones || []) : [];
 
       const index = currentSuscripciones.findIndex(e => e.id === evento.id);
+      let incrementValue;
+    
       if (index !== -1) {
+        // Cancelar suscripción
         currentSuscripciones.splice(index, 1);
+        incrementValue = -1;
       } else {
+        // Suscribirse
         currentSuscripciones.push(evento);
+        incrementValue = 1;
       }
 
+      // Actualizar suscripciones del usuario
       await setDoc(userRef, { suscripciones: currentSuscripciones }, { merge: true });
+    
+      // Actualizar el contador de eventos
+      const contadorSnap = await getDoc(contadorRef);
+      let currentContadores = contadorSnap.exists() ? contadorSnap.data() : {};
+    
+      currentContadores[evento.id] = (currentContadores[evento.id] || 0) + incrementValue;
+      if (currentContadores[evento.id] < 0) currentContadores[evento.id] = 0;
+
+      await setDoc(contadorRef, currentContadores);
+
+      // Actualizar estados locales
       setSuscripciones(currentSuscripciones);
+      setContadorEventos(prevContadores => ({
+        ...prevContadores,
+        [evento.id]: currentContadores[evento.id]
+      }));
+
       console.log("Suscripciones actualizadas después de toggle:", currentSuscripciones);
+      console.log("Contadores actualizados:", currentContadores);
     } catch (error) {
-      console.error("Error al actualizar suscripciones:", error);
+      console.error("Error al actualizar suscripciones o contador:", error);
     }
   }, [user]);
 
@@ -124,6 +199,7 @@ const MisSuscripciones = () => {
         setFiltro={setFiltro}
         isSuscrito={isSuscrito}
         toggleSuscripcion={toggleSuscripcion}
+        contadorEventos={contadorEventos} 
       />
 
       <VideoPromoSection />

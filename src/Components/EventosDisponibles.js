@@ -1,15 +1,23 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
-import { FaGraduationCap, FaMusic, FaFootballBall, FaPalette, FaCode } from 'react-icons/fa';
-import { db } from '../firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
+import React, { useState, useEffect, useMemo } from "react";
+import { Container, Row, Col, Form } from "react-bootstrap";
+import {
+  FaGraduationCap,
+  FaMusic,
+  FaFootballBall,
+  FaPalette,
+  FaCode,
+} from "react-icons/fa";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUsers, faCalendarAlt, faTag } from "@fortawesome/free-solid-svg-icons";
+import { db } from "../firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 
 const categories = [
-  { id: 1, name: 'Académico', icon: <FaGraduationCap />, color: '#4285F4' },
-  { id: 2, name: 'Cultural', icon: <FaMusic />, color: '#EA4335' },
-  { id: 3, name: 'Deportivo', icon: <FaFootballBall />, color: '#34A853' },
-  { id: 4, name: 'Artístico', icon: <FaPalette />, color: '#FBBC05' },
-  { id: 5, name: 'Tecnología', icon: <FaCode />, color: '#FF6D01' },
+  { id: 1, name: "Académico", icon: <FaGraduationCap />, color: "#4285F4" },
+  { id: 2, name: "Cultural", icon: <FaMusic />, color: "#EA4335" },
+  { id: 3, name: "Deportivo", icon: <FaFootballBall />, color: "#34A853" },
+  { id: 4, name: "Artístico", icon: <FaPalette />, color: "#FBBC05" },
+  { id: 5, name: "Tecnología", icon: <FaCode />, color: "#FF6D01" },
 ];
 
 const EventosDisponibles = ({
@@ -20,17 +28,18 @@ const EventosDisponibles = ({
   setFiltro,
   isSuscrito,
   toggleSuscripcion,
+  contadorEventos,
 }) => {
   const [eventos, setEventos] = useState([]);
-  const [filtroLocal, setFiltroLocal] = useState('');
+  const [filtroLocal, setFiltroLocal] = useState("");
   const [categoriaLocal, setCategoriaLocal] = useState(null);
 
   useEffect(() => {
-    const eventosCollection = collection(db, 'eventos');
+    const eventosCollection = collection(db, "eventos");
     const unsubscribe = onSnapshot(eventosCollection, (snapshot) => {
-      const eventosData = snapshot.docs.map(doc => ({
+      const eventosData = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
       setEventos(eventosData);
     });
@@ -43,17 +52,30 @@ const EventosDisponibles = ({
     const categoriaActual = categoriaSeleccionada ?? categoriaLocal;
     const filtroActual = filtro ?? filtroLocal;
 
-    return eventosBase.filter(e =>
-      (!categoriaActual || e.categoria === categoriaActual) &&
-      (!filtroActual || e.nombre.toLowerCase().includes(filtroActual.toLowerCase()))
+    return eventosBase.filter(
+      (e) =>
+        (!categoriaActual || e.categoria === categoriaActual) &&
+        (!filtroActual ||
+          e.nombre.toLowerCase().includes(filtroActual.toLowerCase()))
     );
-  }, [eventosFiltrados, eventos, categoriaSeleccionada, categoriaLocal, filtro, filtroLocal]);
+  }, [
+    eventosFiltrados,
+    eventos,
+    categoriaSeleccionada,
+    categoriaLocal,
+    filtro,
+    filtroLocal,
+  ]);
 
   const handleCategoriaClick = (categoryName) => {
     if (setCategoriaSeleccionada) {
-      setCategoriaSeleccionada(prev => prev === categoryName ? null : categoryName);
+      setCategoriaSeleccionada((prev) =>
+        prev === categoryName ? null : categoryName
+      );
     } else {
-      setCategoriaLocal(prev => prev === categoryName ? null : categoryName);
+      setCategoriaLocal((prev) =>
+        prev === categoryName ? null : categoryName
+      );
     }
   };
 
@@ -71,10 +93,14 @@ const EventosDisponibles = ({
       <Container>
         <h2 className="text-center">Eventos disponibles</h2>
         <div className="categories-container mb-4">
-          {categories.map(category => (
+          {categories.map((category) => (
             <div
               key={category.id}
-              className={`category-item ${(categoriaSeleccionada ?? categoriaLocal) === category.name ? 'selected' : ''}`}
+              className={`category-item ${
+                (categoriaSeleccionada ?? categoriaLocal) === category.name
+                  ? "selected"
+                  : ""
+              }`}
               onClick={() => handleCategoriaClick(category.name)}
               style={{ backgroundColor: category.color }}
             >
@@ -96,27 +122,45 @@ const EventosDisponibles = ({
         <Row xs={1} sm={2} md={3} lg={4} className="g-4">
           {eventosToShow.map((evento) => (
             <Col key={evento.id}>
-              <Card className="evento-card h-100">
-                <Card.Img variant="top" src={evento.imagen} />
-                <Card.Body>
-                  <Card.Title>{evento.nombre}</Card.Title>
-                  <Card.Text>
-                    <strong>Categoría:</strong> {evento.categoria}
-                    <br />
-                    <strong>Fecha:</strong> {evento.fecha}
-                    <br />
-                    <strong>Facultad:</strong> {evento.facultad}
-                  </Card.Text>
-                  <div className="button-container">
-                    <Button
-                      className={isSuscrito(evento.id) ? 'btn-cancelar' : 'btn-suscribir'}
-                      onClick={() => toggleSuscripcion(evento)}
-                    >
-                      {isSuscrito(evento.id) ? 'Cancelar suscripción' : 'Suscribirse'}
-                    </Button>
+              <div className="evento-card">
+                <div className="contador-suscripciones">
+                  <FontAwesomeIcon icon={faUsers} />
+                  <strong>{contadorEventos[evento.id] || 0}</strong>
+                </div>
+                <div className="evento-card-inner">
+                  <div className="evento-card-front">
+                    <img
+                      src={evento.imagen}
+                      className="card-img-top"
+                      alt={evento.nombre}
+                    />
+                    <div className="card-body">
+                      <h5 className="card-title">{evento.nombre}</h5>
+                      <p className="evento-fecha">
+                        <FontAwesomeIcon icon={faCalendarAlt} /> {evento.fecha}
+                      </p>
+                      <span className="evento-categoria">
+                        <FontAwesomeIcon icon={faTag} /> {evento.categoria}
+                      </span>
+                    </div>
                   </div>
-                </Card.Body>
-              </Card>
+                  <div className="evento-card-back">
+                    <p className="card-text">{evento.descripcion}</p>
+                  </div>
+                </div>
+                <div className="button-container">
+                  <button
+                    className={
+                      isSuscrito(evento.id) ? "btn-cancelar" : "btn-suscribir"
+                    }
+                    onClick={() => toggleSuscripcion(evento)}
+                  >
+                    {isSuscrito(evento.id)
+                      ? "Cancelar Suscripción"
+                      : "Suscribirse"}
+                  </button>
+                </div>
+              </div>
             </Col>
           ))}
         </Row>

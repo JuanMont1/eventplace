@@ -11,79 +11,196 @@
 }
 
 .evento-card {
+  background-color: #ffffff;
   border: none;
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  height: 100%;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  perspective: 1000px;
+  position: relative;
 }
 
 .evento-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.evento-card-inner {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 50px);
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.evento-card:hover .evento-card-inner:not(:hover) {
+  transform: rotateY(180deg);
+}
+
+.evento-card-front, .evento-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 15px 15px 0 0;
+  overflow: hidden;
+}
+
+.evento-card-front {
+  background-color: #ffffff;
+  color: #333;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.evento-card-back {
+  background-color: #4CAF50;
+  color: white;
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.evento-card-back .card-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: bold;
+  text-align: center;
 }
 
 .evento-card .card-img-top {
-  height: 200px;
+  height: 150px;
   object-fit: cover;
+  border-bottom: 4px solid #4CAF50;
 }
 
 .evento-card .card-body {
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; 
-  height: 100%; 
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
 }
 
 .evento-card .card-title {
-  color: #28a745;
+  color: #2E7D32;
+  font-size: 1.2rem;
   font-weight: bold;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
-.evento-card .card-text {
-  color: #6c757d;
-  margin-bottom: 1rem;
-  flex-grow: 1;
+.evento-card .evento-fecha,
+.evento-card .evento-categoria,
+.evento-card .contador-suscripciones {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.evento-card .evento-fecha {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.evento-card .evento-categoria {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  margin-bottom: 0.5rem;
+}
+
+.evento-card .contador-suscripciones {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(76, 175, 80, 0.9);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 3;
+}
+
+.evento-card .contador-suscripciones strong {
+  font-size: 1rem;
+  margin-left: 3px;
+}
+
+.evento-card .evento-fecha svg,
+.evento-card .evento-categoria svg,
+.evento-card .contador-suscripciones svg {
+  font-size: 1rem;
+}
+
+/* Ajusta el tamaño del icono en el contador de suscripciones */
+.evento-card .contador-suscripciones svg {
+  font-size: 0.9rem;
+}
+
+.evento-card .button-container {
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  position: relative;
+  z-index: 3;
 }
 
 .evento-card .btn-suscribir,
 .evento-card .btn-cancelar {
-  align-self: center; 
-  padding: 0.5rem 1rem;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-  width: 100%; 
-  max-width: 200px; 
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 20px;
+  transition: all 0.3s ease;
 }
 
 .evento-card .btn-suscribir {
-  background-color: #28a745;
-  border-color: #28a745;
+  background-color: #4CAF50;
   color: white;
 }
 
 .evento-card .btn-suscribir:hover {
-  background-color: #218838;
-  border-color: #1e7e34;
+  background-color: #45a049;
 }
 
 .evento-card .btn-cancelar {
-  background-color: #dc3545;
-  border-color: #dc3545;
-  color: white;
+  background-color: #FFF;
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
 }
 
 .evento-card .btn-cancelar:hover {
-  background-color: #c82333;
-  border-color: #bd2130;
+  background-color: #4CAF50;
+  color: white;
 }
 
-.evento-card .button-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+.suscripciones-badge {
+  font-size: 0.9rem;
+  padding: 0.4em 0.6em;
+  background-color: #28a745 !important; 
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.suscripciones-badge:hover {
+  background-color: #218838 !important; 
+  transform: translateY(-2px);
 }
 
 @media (max-width: 576px) {
