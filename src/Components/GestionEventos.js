@@ -1,34 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Button, Modal, Tabs, Tab } from 'react-bootstrap';
+import { Container, Table, Button, Modal, Tabs, Tab, Form } from 'react-bootstrap';
 import { db } from '../firebase';
-import { collection, getDocs, deleteDoc, doc, query, where, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, query, where, updateDoc, writeBatch, addDoc, getDoc, setDoc } from 'firebase/firestore';
 import EventosDisponibles from './EventosDisponibles';
-import { getMockEventos, deleteMockEvento } from '../mockData';
+import { useAuth } from '../contexts/AuthContext'; // Asegúrate de tener este contexto
 
 const GestionEventos = () => {
   const [eventos, setEventos] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [eventoAEliminar, setEventoAEliminar] = useState(null);
+  const [eventoAEditar, setEventoAEditar] = useState(null);
+  const [eventosDisponibles, setEventosDisponibles] = useState([]);
 
   const fetchEventos = async () => {
-    // Obtener eventos de Firebase
-    const eventosCollection = collection(db, 'eventos');
-    const eventosSnapshot = await getDocs(eventosCollection);
-    const eventosFirebase = eventosSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      tipo: 'firebase'
-    }));
-
-    // Obtener eventos mock
-    const eventosMock = getMockEventos().map(evento => ({
-      ...evento,
-      tipo: 'mock'
-    }));
-
-    // Combinar eventos de Firebase y mock
-    const todosLosEventos = [...eventosFirebase, ...eventosMock];
-    setEventos(todosLosEventos);
+    try {
+      const eventosCollection = collection(db, 'eventos');
+      const eventosSnapshot = await getDocs(eventosCollection);
+      const eventosData = eventosSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setEventos(eventosData);
+      setEventosDisponibles(eventosData);
+      console.log("Eventos actualizados:", eventosData);
+    } catch (error) {
+      console.error("Error al obtener eventos:", error);
+    }
   };
 
   useEffect(() => {
@@ -37,7 +35,54 @@ const GestionEventos = () => {
 
   const handleEliminar = (evento) => {
     setEventoAEliminar(evento);
-    setShowModal(true);
+    setShowDeleteModal(true);
+  };
+
+  const handleEditar = (evento) => {
+    setEventoAEditar({...evento});
+    setShowEditModal(true);
+  };
+
+  const confirmarEliminar = async () => {
+    if (eventoAEliminar) {
+      try {
+        await deleteDoc(doc(db, 'eventos', eventoAEliminar.id));
+        await eliminarSuscripcionesDeUsuarios(eventoAEliminar.id);
+        await fetchEventos();
+        setShowDeleteModal(false);
+      } catch (error) {
+        console.error("Error al eliminar el evento:", error);
+        alert("Hubo un error al eliminar el evento. Por favor, inténtalo de nuevo.");
+      }
+    }
+  };
+
+  const handleEditarChange = (e) => {
+    const { name, value } = e.target;
+    setEventoAEditar(prevEvento => ({
+      ...prevEvento,
+      [name]: value
+    }));
+  };
+
+  const confirmarEditar = async () => {
+    if (eventoAEditar) {
+      try {
+        const eventoRef = doc(db, 'eventos', eventoAEditar.id);
+        await updateDoc(eventoRef, {
+          nombre: eventoAEditar.nombre,
+          categoria: eventoAEditar.categoria,
+          fecha: eventoAEditar.fecha,
+          // Añade aquí otros campos que quieras actualizar
+        });
+        await fetchEventos(); // Actualiza la lista de eventos
+        setShowEditModal(false);
+        alert("Evento actualizado con éxito");
+      } catch (error) {
+        console.error("Error al editar el evento:", error);
+        alert("Hubo un error al editar el evento. Por favor, inténtalo de nuevo.");
+      }
+    }
   };
 
   const eliminarSuscripcionesDeUsuarios = async (eventoId) => {
@@ -45,7 +90,7 @@ const GestionEventos = () => {
     const q = query(usersRef, where('suscripciones', 'array-contains', { id: eventoId }));
     const querySnapshot = await getDocs(q);
 
-    const batch = db.batch();
+    const batch = writeBatch(db);
     querySnapshot.forEach((userDoc) => {
       const userRef = doc(db, 'users', userDoc.id);
       const suscripciones = userDoc.data().suscripciones.filter(s => s.id !== eventoId);
@@ -55,24 +100,50 @@ const GestionEventos = () => {
     await batch.commit();
   };
 
-  const confirmarEliminar = async () => {
-    if (eventoAEliminar) {
-      try {
-        if (eventoAEliminar.tipo === 'firebase') {
-          await deleteDoc(doc(db, 'eventos', eventoAEliminar.id));
-          await eliminarSuscripcionesDeUsuarios(eventoAEliminar.id);
-        } else if (eventoAEliminar.tipo === 'mock') {
-          deleteMockEvento(eventoAEliminar.id);
-          // Para eventos mock, también deberíamos actualizar las suscripciones de los usuarios
-          // Esto dependerá de cómo estés manejando las suscripciones para eventos mock
+  const { currentUser } = useAuth(); // Obtén el usuario actual del contexto de autenticación
+  const [userSuscripciones, setUserSuscripciones] = useState([]);
+
+  useEffect(() => {
+    const fetchUserSuscripciones = async () => {
+      if (currentUser) {
+        const userRef = doc(db, 'users', currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          setUserSuscripciones(userSnap.data().suscripciones || []);
         }
-        // Actualizar la lista de eventos después de eliminar
-        await fetchEventos();
-        setShowModal(false);
-      } catch (error) {
-        console.error("Error al eliminar el evento:", error);
-        alert("Hubo un error al eliminar el evento. Por favor, inténtalo de nuevo.");
       }
+    };
+
+    fetchUserSuscripciones();
+  }, [currentUser]);
+
+  const isSuscrito = (eventoId) => {
+    return userSuscripciones.some(suscripcion => suscripcion.id === eventoId);
+  };
+
+  const toggleSuscripcion = async (evento) => {
+    if (!currentUser) {
+      alert("Por favor, inicia sesión para suscribirte a eventos.");
+      return;
+    }
+
+    const userRef = doc(db, 'users', currentUser.uid);
+    try {
+      const userSnap = await getDoc(userRef);
+      let currentSuscripciones = userSnap.exists() ? (userSnap.data().suscripciones || []) : [];
+
+      if (currentSuscripciones.some(e => e.id === evento.id)) {
+        currentSuscripciones = currentSuscripciones.filter(e => e.id !== evento.id);
+      } else {
+        currentSuscripciones.push(evento);
+      }
+
+      await setDoc(userRef, { suscripciones: currentSuscripciones }, { merge: true });
+      setUserSuscripciones(currentSuscripciones);
+      console.log(`Toggle suscripción para evento ${evento.id}`);
+    } catch (error) {
+      console.error("Error al actualizar suscripciones:", error);
+      alert("Hubo un error al actualizar la suscripción. Por favor, inténtalo de nuevo.");
     }
   };
 
@@ -87,35 +158,35 @@ const GestionEventos = () => {
                 <th>Nombre</th>
                 <th>Categoría</th>
                 <th>Fecha</th>
-                <th>Tipo</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {eventos.map(evento => (
-                <tr key={evento.id}>
-                  <td>{evento.nombre}</td>
-                  <td>{evento.categoria}</td>
-                  <td>{evento.fecha}</td>
-                  <td>{evento.tipo === 'firebase' ? 'Real' : 'Mock'}</td>
-                  <td>
-                    <Button variant="danger" onClick={() => handleEliminar(evento)}>Eliminar</Button>
-                  </td>
-                </tr>
-              ))}
+            {eventos.map(evento => (
+              <tr key={evento.id}>
+                <td>{evento.nombre}</td>
+                <td>{evento.categoria}</td>
+                <td>{evento.fecha}</td>
+                <td>
+                  <Button variant="primary" onClick={() => handleEditar(evento)} className="me-2">Editar</Button>
+                  <Button variant="danger" onClick={() => handleEliminar(evento)}>Eliminar</Button>
+                </td>
+              </tr>
+            ))}
             </tbody>
           </Table>
         </Tab>
         <Tab eventKey="disponibles" title="Eventos Disponibles">
           <EventosDisponibles 
-            eventosFiltrados={eventos}
-            isSuscrito={() => false} 
-            toggleSuscripcion={() => {}} 
+            eventosFiltrados={eventosDisponibles}
+            isSuscrito={isSuscrito}
+            toggleSuscripcion={toggleSuscripcion}
           />
         </Tab>
       </Tabs>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      {/* Modal de Eliminación */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar eliminación</Modal.Title>
         </Modal.Header>
@@ -123,11 +194,58 @@ const GestionEventos = () => {
           ¿Estás seguro de que deseas eliminar permanentemente el evento "{eventoAEliminar?.nombre}"?
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
             Cancelar
           </Button>
           <Button variant="danger" onClick={confirmarEliminar}>
             Eliminar Permanentemente
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Edición */}
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Editar Evento</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control 
+                type="text" 
+                name="nombre" 
+                value={eventoAEditar?.nombre || ''} 
+                onChange={handleEditarChange}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Categoría</Form.Label>
+              <Form.Control 
+                type="text" 
+                name="categoria" 
+                value={eventoAEditar?.categoria || ''} 
+                onChange={handleEditarChange}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha</Form.Label>
+              <Form.Control 
+                type="date" 
+                name="fecha" 
+                value={eventoAEditar?.fecha || ''} 
+                onChange={handleEditarChange}
+              />
+            </Form.Group>
+            {/* Agrega más campos según sea necesario */}
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={confirmarEditar}>
+            Guardar Cambios
           </Button>
         </Modal.Footer>
       </Modal>

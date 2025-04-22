@@ -7,18 +7,24 @@ export const getMockEventos = () => {
 export const addMockEvento = (nuevoEvento) => {
   const eventoConId = { ...nuevoEvento, id: Date.now().toString() };
   mockEventos.push(eventoConId);
-  // Guardar en localStorage
   localStorage.setItem('mockEventos', JSON.stringify(mockEventos));
   return eventoConId;
 };
 
 export const deleteMockEvento = (id) => {
   mockEventos = mockEventos.filter(evento => evento.id !== id);
-  // Actualizar localStorage
   localStorage.setItem('mockEventos', JSON.stringify(mockEventos));
 };
 
-// Si quieres inicializar con algunos eventos por defecto, puedes hacerlo así:
+export const updateMockEvento = (eventoActualizado) => {
+  const index = mockEventos.findIndex(e => e.id === eventoActualizado.id);
+  if (index !== -1) {
+    mockEventos[index] = eventoActualizado;
+    localStorage.setItem('mockEventos', JSON.stringify(mockEventos));
+  }
+};
+
+
 if (mockEventos.length === 0) {
   const eventosIniciales = [
     // ... tus eventos iniciales ...

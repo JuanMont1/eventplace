@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
 import { FaGraduationCap, FaMusic, FaFootballBall, FaPalette, FaCode } from 'react-icons/fa';
-import { getMockEventos } from '../mockData';
+import { db } from '../firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
+
+const categories = [
+  { id: 1, name: 'Académico', icon: <FaGraduationCap />, color: '#4285F4' },
+  { id: 2, name: 'Cultural', icon: <FaMusic />, color: '#EA4335' },
+  { id: 3, name: 'Deportivo', icon: <FaFootballBall />, color: '#34A853' },
+  { id: 4, name: 'Artístico', icon: <FaPalette />, color: '#FBBC05' },
+  { id: 5, name: 'Tecnología', icon: <FaCode />, color: '#FF6D01' },
+];
 
 const EventosDisponibles = ({
   eventosFiltrados,
@@ -14,36 +23,48 @@ const EventosDisponibles = ({
 }) => {
   const [eventos, setEventos] = useState([]);
   const [filtroLocal, setFiltroLocal] = useState('');
-  const [categoria, setCategoria] = useState(null);
-  const [suscripciones, setSuscripciones] = useState([]);
-
-  // Usa eventosFiltrados si se proporciona, de lo contrario usa el estado local
-  const eventosToShow = eventosFiltrados ?? eventos.filter(e =>
-    (!categoria || e.categoria === categoria) &&
-    (!filtroLocal || e.nombre.toLowerCase().includes(filtroLocal.toLowerCase()))
-  );
-
-  const isSuscritoLocal = (id) => suscripciones.includes(id);
-  const toggleSuscripcionLocal = (evento) => {
-    setSuscripciones((prev) =>
-      prev.includes(evento.id)
-        ? prev.filter(id => id !== evento.id)
-        : [...prev, evento.id]
-    );
-  };
+  const [categoriaLocal, setCategoriaLocal] = useState(null);
 
   useEffect(() => {
-    const eventosMock = getMockEventos();
-    setEventos(eventosMock);
+    const eventosCollection = collection(db, 'eventos');
+    const unsubscribe = onSnapshot(eventosCollection, (snapshot) => {
+      const eventosData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setEventos(eventosData);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const categories = [
-    { id: 1, name: 'Académico', icon: <FaGraduationCap />, color: '#4285F4' },
-    { id: 2, name: 'Cultural', icon: <FaMusic />, color: '#EA4335' },
-    { id: 3, name: 'Deportivo', icon: <FaFootballBall />, color: '#34A853' },
-    { id: 4, name: 'Artístico', icon: <FaPalette />, color: '#FBBC05' },
-    { id: 5, name: 'Tecnología', icon: <FaCode />, color: '#FF6D01' },
-  ];
+  const eventosToShow = useMemo(() => {
+    const eventosBase = eventosFiltrados ?? eventos;
+    const categoriaActual = categoriaSeleccionada ?? categoriaLocal;
+    const filtroActual = filtro ?? filtroLocal;
+
+    return eventosBase.filter(e =>
+      (!categoriaActual || e.categoria === categoriaActual) &&
+      (!filtroActual || e.nombre.toLowerCase().includes(filtroActual.toLowerCase()))
+    );
+  }, [eventosFiltrados, eventos, categoriaSeleccionada, categoriaLocal, filtro, filtroLocal]);
+
+  const handleCategoriaClick = (categoryName) => {
+    if (setCategoriaSeleccionada) {
+      setCategoriaSeleccionada(prev => prev === categoryName ? null : categoryName);
+    } else {
+      setCategoriaLocal(prev => prev === categoryName ? null : categoryName);
+    }
+  };
+
+  const handleFiltroChange = (e) => {
+    const value = e.target.value;
+    if (setFiltro) {
+      setFiltro(value);
+    } else {
+      setFiltroLocal(value);
+    }
+  };
 
   return (
     <section className="mis-suscripciones-container">
@@ -53,14 +74,8 @@ const EventosDisponibles = ({
           {categories.map(category => (
             <div
               key={category.id}
-              className={`category-item ${(
-                categoriaSeleccionada ?? categoria
-              ) === category.name ? 'selected' : ''}`}
-              onClick={() => {
-                setCategoriaSeleccionada
-                  ? setCategoriaSeleccionada((prev) => prev === category.name ? null : category.name)
-                  : setCategoria((prev) => prev === category.name ? null : category.name);
-              }}
+              className={`category-item ${(categoriaSeleccionada ?? categoriaLocal) === category.name ? 'selected' : ''}`}
+              onClick={() => handleCategoriaClick(category.name)}
               style={{ backgroundColor: category.color }}
             >
               <div className="category-icon">{category.icon}</div>
@@ -74,16 +89,12 @@ const EventosDisponibles = ({
               type="text"
               placeholder="Buscar eventos..."
               value={filtro ?? filtroLocal}
-              onChange={(e) =>
-                setFiltro
-                  ? setFiltro(e.target.value)
-                  : setFiltroLocal(e.target.value)
-              }
+              onChange={handleFiltroChange}
             />
           </Form.Group>
         </Form>
         <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-          {(eventosFiltrados ?? eventosToShow).map((evento) => (
+          {eventosToShow.map((evento) => (
             <Col key={evento.id}>
               <Card className="evento-card h-100">
                 <Card.Img variant="top" src={evento.imagen} />
@@ -98,18 +109,10 @@ const EventosDisponibles = ({
                   </Card.Text>
                   <div className="button-container">
                     <Button
-                      className={
-                        (isSuscrito ?? isSuscritoLocal)(evento.id)
-                          ? 'btn-cancelar'
-                          : 'btn-suscribir'
-                      }
-                      onClick={() =>
-                        (toggleSuscripcion ?? toggleSuscripcionLocal)(evento)
-                      }
+                      className={isSuscrito(evento.id) ? 'btn-cancelar' : 'btn-suscribir'}
+                      onClick={() => toggleSuscripcion(evento)}
                     >
-                      {(isSuscrito ?? isSuscritoLocal)(evento.id)
-                        ? 'Cancelar suscripción'
-                        : 'Suscribirse'}
+                      {isSuscrito(evento.id) ? 'Cancelar suscripción' : 'Suscribirse'}
                     </Button>
                   </div>
                 </Card.Body>

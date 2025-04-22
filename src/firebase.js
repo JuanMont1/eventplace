@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from 'firebase/storage'; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyBCXQeRB-5tnDENDXi5VvZwf2lKvS-Hfls",
@@ -17,6 +18,5 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app);
-
-
+export const storage = getStorage(app); 
 export const ADMIN_EMAILS = ['anonimo7510@gmail.com', 'otroadmin@example.com'];
