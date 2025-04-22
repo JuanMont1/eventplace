@@ -6,28 +6,29 @@ import { signOut, updatePassword } from "firebase/auth";
 import { db, auth } from "../firebase";
 import "../styles/UserProfile.css";
 
-const TarjetaEvento = React.memo(({ evento, manejarCalificacion }) => (
-  <div className="tarjeta-evento">
-    <div className="evento-imagen" style={{ backgroundImage: `url(${evento.imagen})` }}></div>
-    <div className="evento-contenido">
-      <h3>{evento.nombre}</h3>
-      <p><i className="fas fa-calendar-alt"></i> {evento.fecha}</p>
-      <p><i className="fas fa-tag"></i> {evento.categoria}</p>
-      <p><i className="fas fa-university"></i> {evento.facultad}</p>
-      <div className="calificacion">
-        {[1, 2, 3, 4, 5].map((estrella) => (
-          <span
-            key={estrella}
-            className={`estrella ${evento.calificacion >= estrella ? "activa" : ""}`}
-            onClick={() => manejarCalificacion(evento.id, estrella)}
-          >
-            ★
-          </span>
-        ))}
+const TarjetaEvento = React.memo(({ evento, manejarDesuscripcion }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="tarjeta-evento">
+      <div className="evento-imagen" style={{ backgroundImage: `url(${evento.imagen})` }}></div>
+      <div className="evento-contenido">
+        <h3>{evento.nombre}</h3>
+        <p><i className="fas fa-calendar-alt"></i> {evento.fecha}</p>
+        <p><i className="fas fa-tag"></i> {evento.categoria}</p>
+        <p><i className="fas fa-university"></i> {evento.facultad}</p>
+        <div className="evento-acciones">
+          <button onClick={() => manejarDesuscripcion(evento.id)} className="btn-desuscribir">
+            Desuscribirse
+          </button>
+          <button onClick={() => navigate(`/foro/${evento.id}`)} className="btn-foro">
+            Ir al Foro
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-));
+  );
+});
 
 const useUserData = (user) => {
   const [userData, setUserData] = useState(null);
@@ -72,21 +73,17 @@ const UserProfile = () => {
   const { userData, loading, error, suscripciones, setSuscripciones } = useUserData(user);
   const [editMode, setEditMode] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newPassword, setNewPassword] = useState("");
 
-  const manejarCalificacion = useCallback(async (id, calificacion) => {
+  const manejarDesuscripcion = useCallback(async (eventoId) => {
     try {
-      const newSuscripciones = suscripciones.map((evento) =>
-        evento.id === id ? { ...evento, calificacion } : evento
-      );
-
+      const newSuscripciones = suscripciones.filter(evento => evento.id !== eventoId);
       const userRef = doc(db, "users", user.uid);
       await updateDoc(userRef, { suscripciones: newSuscripciones });
       setSuscripciones(newSuscripciones);
     } catch (error) {
-      console.error("Error al actualizar la calificación:", error);
+      console.error("Error al desuscribirse del evento:", error);
     }
-  }, [suscripciones, user]);
+  }, [suscripciones, user, setSuscripciones]);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -112,17 +109,6 @@ const UserProfile = () => {
     }
   }, [userData, newName]);
 
-  const handleChangePassword = useCallback(async () => {
-    try {
-      await updatePassword(auth.currentUser, newPassword);
-      alert("Password updated successfully!");
-      setNewPassword("");
-    } catch (error) {
-      console.error("Error updating password:", error);
-      alert("Failed to update password. Please try again.");
-    }
-  }, [newPassword]);
-
   const sortedSuscripciones = useMemo(() => 
     [...suscripciones].sort((a, b) => new Date(a.fecha) - new Date(b.fecha)),
     [suscripciones]
@@ -144,23 +130,31 @@ const UserProfile = () => {
           handleEditProfile={handleEditProfile}
           handleSaveProfile={handleSaveProfile}
         />
-        <UserActions handleChangePassword={handleChangePassword} />
+        <UserActions />
         <EventosSuscritos 
           suscripciones={sortedSuscripciones}
-          manejarCalificacion={manejarCalificacion}
+          manejarDesuscripcion={manejarDesuscripcion}
         />
       </main>
     </div>
   );
 };
 
-const ProfileHeader = React.memo(({ handleLogout }) => (
-  <header className="profile-header">
-    <Link to="/" className="back-link"><i className="fas fa-arrow-left"></i> Volver al Inicio</Link>
-    <h1>Perfil de Usuario</h1>
-    <button onClick={handleLogout} className="logout-btn"><i className="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
-  </header>
-));
+const ProfileHeader = React.memo(({ handleLogout }) => {
+  const navigate = useNavigate();
+
+  return (
+    <header className="profile-header">
+      <button onClick={() => navigate(-1)} className="back-link">
+        <i className="fas fa-arrow-left"></i> Volver
+      </button>
+      <h1>Perfil de Usuario</h1>
+      <button onClick={handleLogout} className="logout-btn">
+        <i className="fas fa-sign-out-alt"></i> Cerrar Sesión
+      </button>
+    </header>
+  );
+});
 
 const UserInfo = React.memo(({ userData, editMode, newName, setNewName, handleEditProfile, handleSaveProfile }) => (
   <section className="user-info">
@@ -188,18 +182,18 @@ const UserInfo = React.memo(({ userData, editMode, newName, setNewName, handleEd
   </section>
 ));
 
-const UserActions = React.memo(({ handleChangePassword }) => (
+const UserActions = React.memo(() => (
   <section className="user-actions">
-    <button onClick={handleChangePassword} className="action-btn">
-      <i className="fas fa-key"></i> Cambiar Contraseña
-    </button>
     <Link to="/mis-suscripciones" className="action-btn">
       <i className="fas fa-calendar-check"></i> Mis Suscripciones
+    </Link>
+    <Link to="/reservado" className="action-btn">
+      <i className="fas fa-bookmark"></i> Reservado
     </Link>
   </section>
 ));
 
-const EventosSuscritos = React.memo(({ suscripciones, manejarCalificacion }) => (
+const EventosSuscritos = React.memo(({ suscripciones, manejarDesuscripcion }) => (
   <section className="eventos-suscritos">
     <h2>Eventos Suscritos</h2>
     <div className="eventos-grid">
@@ -208,7 +202,7 @@ const EventosSuscritos = React.memo(({ suscripciones, manejarCalificacion }) => 
           <TarjetaEvento
             key={evento.id}
             evento={evento}
-            manejarCalificacion={manejarCalificacion}
+            manejarDesuscripcion={manejarDesuscripcion}
           />
         ))
       ) : (
