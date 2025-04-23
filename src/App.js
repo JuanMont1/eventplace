@@ -43,7 +43,7 @@ const AppContent = () => {
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   // Rutas donde NO debe aparecer la navbar
-  const noNavbarRoutes = ['/login', '/perfil', '/admin/perfil', '/proximos-eventos', '/eventos','/foro/eventos'];
+  const noNavbarRoutes = ['/login', '/perfil', '/admin/perfil', '/proximos-eventos', '/eventos','/foro/eventos', '/register'];
   const isNoNavbarRoute = noNavbarRoutes.includes(location.pathname);
 
   // Rutas donde NO debe aparecer el footer

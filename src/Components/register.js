@@ -46,7 +46,7 @@ const Registro = () => {
           <button type="submit" className="login-btn">Registrarse</button>
         </form>
 
-        <div className="divider">____________________ o ____________________</div>
+        <div className="divider">_________________ o ________________</div>
 
         <button onClick={handleGoogleRegister} className="google-btn">
           <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="google-icon" />
@@ -55,7 +55,7 @@ const Registro = () => {
 
         <p className="register">
           ¿Ya tienes una cuenta? 
-          <a href="#" onClick={handleRegisterClick}>Inicia sesión</a>
+          <a href="/login" onClick={handleRegisterClick}>Inicia sesión</a>
         </p>
       </div>
     </div>

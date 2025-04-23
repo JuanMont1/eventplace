@@ -114,7 +114,7 @@ const Login = () => {
           ¿Olvidaste tu contraseña? <a href="#">Recupérala aquí</a>
         </p>
 
-        <div className="divider">____________________ o ____________________</div>
+        <div className="divider">_________________ o ________________</div>
 
         <button onClick={handleGoogleLogin} className="google-btn" disabled={isLoading}>
           {isLoading ? (
