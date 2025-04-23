@@ -8,10 +8,14 @@ import '../styles/PaginaPrincipal.css';
 import CountUp from 'react-countup';
 import welcomeGif from '../archivos/img/abeja.gif';
 import L from 'leaflet';
+import { db } from '../firebase';
 import { BarraNavegacion } from './BarraNavegacion';
 import PieDePagina from './pieDePagina';
 import emailjs from 'emailjs-com';
 import soachaIconImg from '../archivos/img/Punto de marca.png';
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
+
 const Hero = () => {
   return (
     <div className="hero-wrapper">
@@ -369,48 +373,82 @@ const FormularioOpiniones = () => {
 
 
 const UltimosAnuncios = () => {
-  const anuncios = [
-    {
-      titulo: 'Nuevo sistema de registro para eventos',
-      descripcion: 'Hemos implementado un nuevo sistema de registro en linea para facilitar tu participacion en los eventos.',
-      fecha: '10 de Mayo, 2023',
-      icono: <FaBullhorn />
-    },
-    {
-      titulo: 'Cambios en el calendario academico',
-      descripcion: 'Se han realizado ajustes importantes en el calendario academico. Revisa las nuevas fechas.',
-      fecha: '5 de Mayo, 2023',
-      icono: <FaCalendarAlt />
-    },
-    {
-      titulo: 'Convocatoria para voluntarios en eventos',
-      descripcion: 'Unete a nuestro equipo de voluntarios y se parte de la organizacin de eventos emocionantes!',
-      fecha: '1 de Mayo, 2023',
-      icono: <FaUsers />
+  const [anuncios, setAnuncios] = useState([]);
+  const navigate = useNavigate();
+
+  const handleVerTodosAnuncios = () => {
+    navigate('/todos-los-anuncios');
+  };
+
+  useEffect(() => {
+    const fetchAnuncios = async () => {
+      try {
+        const anunciosRef = collection(db, 'anuncios');
+        const q = query(anunciosRef, orderBy('fecha', 'desc'), limit(3));
+        const querySnapshot = await getDocs(q);
+        const anunciosData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setAnuncios(anunciosData);
+      } catch (error) {
+        console.error("Error al obtener anuncios:", error);
+      }
+    };
+
+    fetchAnuncios();
+  }, []);
+
+  const getIcono = (tipo) => {
+    switch (tipo) {
+      case 'evento': return <FaBullhorn />;
+      case 'calendario': return <FaCalendarAlt />;
+      case 'voluntarios': return <FaUsers />;
+      default: return <FaBullhorn />;
     }
-  ];
+  };
+
+  const formatearFecha = (fecha) => {
+    if (fecha instanceof Date) {
+      return fecha.toLocaleDateString();
+    } else if (typeof fecha === 'object' && fecha.seconds) {
+      // Firestore Timestamp
+      return new Date(fecha.seconds * 1000).toLocaleDateString();
+    } else if (typeof fecha === 'string') {
+      // Intenta parsear la fecha si es una cadena
+      const parsedDate = new Date(fecha);
+      return isNaN(parsedDate.getTime()) ? fecha : parsedDate.toLocaleDateString();
+    } else if (typeof fecha === 'number') {
+      return new Date(fecha).toLocaleDateString();
+    }
+    return 'Fecha no disponible';
+  };
 
   return (
     <section className="ultimos-anuncios">
-      <h2>&Uacute;ltimos Anuncios</h2>
+      <h2>Últimos Anuncios</h2>
       <div className="anuncios-container">
-        {anuncios.map((anuncio, index) => (
-          <div key={index} className="anuncio-item">
-            <div className="anuncio-icono">{anuncio.icono}</div>
+        {anuncios.map((anuncio) => (
+          <div key={anuncio.id} className="anuncio-item">
+            <div className="anuncio-icono">{getIcono(anuncio.tipo)}</div>
             <div className="anuncio-contenido">
               <h3>{anuncio.titulo}</h3>
               <p>{anuncio.descripcion}</p>
-              <span className="anuncio-fecha">{anuncio.fecha}</span>
+              <span className="anuncio-fecha">{formatearFecha(anuncio.fecha)}</span>
             </div>
           </div>
         ))}
       </div>
-      <button className="btn-ver-todos-anuncios">
+      <button className="btn-ver-todos-anuncios" onClick={handleVerTodosAnuncios}>
         Ver todos los anuncios <FaArrowRight />
       </button>
     </section>
   );
 };
+
+
+
+
 
 const EstadisticasEventos = () => {
   const estadisticas = [

@@ -377,11 +377,20 @@ body {
   box-shadow: 0 6px 12px rgba(3, 82, 27, 0.15);
 }
 
-.pagina-principal .anuncio-icono {
-  font-size: 2rem;
-  color: #188b18;
-  margin-bottom: 1rem;
+.ultimos-anuncios .anuncio-icono {
+  background-color: #27ae60;
+  color: white;  /* Cambiado a blanco */
+  font-size: 24px;
+  padding: 15px;
+  text-align: center;
+  border-radius: 50%;  
+  width: 60px;  
+  height: 60px;  
+  display: flex; 
+  justify-content: center;  
+  align-items: center;  
 }
+
 
 .pagina-principal .anuncio-contenido h3 {
   font-size: 1.25rem;

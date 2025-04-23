@@ -17,6 +17,7 @@ const GaleriaEventos = () => {
         id: doc.id,
         ...doc.data()
       }));
+      console.log('Eventos obtenidos:', eventosList); // Agregamos este log para depuración
       setEventos(eventosList);
     };
 
@@ -82,9 +83,9 @@ const GaleriaEventos = () => {
       <div className="eventos-grid">
         {eventosFiltrados.map(evento => (
           <div key={evento.id} className="evento-card">
-            <img src={evento.imagen} alt={evento.titulo} className="evento-imagen" />
+            <img src={evento.imagen} alt={evento.nombre} className="evento-imagen" />
             <div className="evento-info">
-              <h3 className="evento-titulo">{evento.titulo}</h3>
+              <h3 className="evento-titulo">{evento.nombre}</h3>
               <p className="evento-fecha">{evento.fecha}</p>
               <p className="evento-categoria">{evento.categoria}</p>
               <p className="evento-descripcion">{evento.descripcion}</p>

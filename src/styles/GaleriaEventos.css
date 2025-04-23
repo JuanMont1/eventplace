@@ -78,10 +78,10 @@
   }
   
   .galeria-eventos .evento-card .evento-fecha {
-    background-color: white;
-    font-size: 0.9rem;
-    color: #888;
-    margin-bottom: 5px;
+    justify-content: center;
+    margin: 10px 0;
+    font-style: italic;
+    color: #666;
   }
   
   .evento-categoria {

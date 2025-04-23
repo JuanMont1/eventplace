@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Table, Button, Tabs, Tab, Row, Col } from "react-bootstrap";
+import { Container, Table, Button, Tabs, Tab, Row, Col, Form } from "react-bootstrap";
 import { db } from "../firebase";
 import {
   collection,
@@ -19,6 +19,8 @@ import {
   faUsers,
   faCalendarAlt,
   faTag,
+  faBullhorn,
+  faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 import ModalEliminarEvento from "./ModalEliminarEvento";
 import ModalEditarEvento from "./ModalEditarEvento";
@@ -44,6 +46,14 @@ const GestionEventos = () => {
   });
   const [showEditProximoModal, setShowEditProximoModal] = useState(false);
   const [proximoEventoAEditar, setProximoEventoAEditar] = useState(null);
+
+  const [anuncios, setAnuncios] = useState([]);
+  const [nuevoAnuncio, setNuevoAnuncio] = useState({
+    titulo: '',
+    descripcion: '',
+    fecha: '',
+    icono: 'faBullhorn'
+  });
 
   const fetchEventos = async () => {
     try {
@@ -87,6 +97,7 @@ const GestionEventos = () => {
     fetchEventos();
     fetchProximosEventos();
     countSubscriptions();
+    fetchAnuncios();
   }, []);
 
   const handleEliminar = (evento) => {
@@ -241,6 +252,56 @@ const GestionEventos = () => {
     }
   };
 
+  const fetchAnuncios = async () => {
+    try {
+      const anunciosSnapshot = await getDocs(collection(db, "anuncios"));
+      const anunciosData = anunciosSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setAnuncios(anunciosData);
+    } catch (error) {
+      console.error("Error al obtener anuncios:", error);
+    }
+  };
+
+  const handleNuevoAnuncioChange = (e) => {
+    const { name, value } = e.target;
+    setNuevoAnuncio(prev => ({ ...prev, [name]: value }));
+  };
+
+  const agregarNuevoAnuncio = async (e) => {
+    e.preventDefault();
+    try {
+      await addDoc(collection(db, "anuncios"), {
+        ...nuevoAnuncio,
+        fecha: new Date().toLocaleDateString()
+      });
+      setNuevoAnuncio({
+        titulo: '',
+        descripcion: '',
+        fecha: '',
+        icono: 'faBullhorn'
+      });
+      fetchAnuncios();
+      alert("Nuevo anuncio agregado con éxito");
+    } catch (error) {
+      console.error("Error al agregar nuevo anuncio:", error);
+    }
+  };
+
+  const eliminarAnuncio = async (id) => {
+    if (window.confirm("¿Estás seguro de que quieres eliminar este anuncio?")) {
+      try {
+        await deleteDoc(doc(db, "anuncios", id));
+        fetchAnuncios();
+        alert("Anuncio eliminado con éxito");
+      } catch (error) {
+        console.error("Error al eliminar el anuncio:", error);
+      }
+    }
+  };
+
   return (
     <Container style={{ paddingTop: "250px" }}>
       <h2 className="my-4">Gestión de Eventos</h2>
@@ -337,6 +398,75 @@ const GestionEventos = () => {
                       variant="danger"
                       size="sm"
                       onClick={() => handleEliminarProximo(evento)}
+                    >
+                      Eliminar
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Tab>
+
+        <Tab eventKey="anuncios" title="Últimos Anuncios">
+          <h3>Agregar Nuevo Anuncio</h3>
+          <Form onSubmit={agregarNuevoAnuncio}>
+            <Form.Group className="mb-3">
+              <Form.Label>Título</Form.Label>
+              <Form.Control
+                type="text"
+                name="titulo"
+                value={nuevoAnuncio.titulo}
+                onChange={handleNuevoAnuncioChange}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Descripción</Form.Label>
+              <Form.Control
+                as="textarea"
+                name="descripcion"
+                value={nuevoAnuncio.descripcion}
+                onChange={handleNuevoAnuncioChange}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Icono</Form.Label>
+              <Form.Select
+                name="icono"
+                value={nuevoAnuncio.icono}
+                onChange={handleNuevoAnuncioChange}
+              >
+                <option value="faBullhorn">Megáfono</option>
+                <option value="faCalendarAlt">Calendario</option>
+                <option value="faUsers">Usuarios</option>
+              </Form.Select>
+            </Form.Group>
+            <Button type="submit">Agregar Anuncio</Button>
+          </Form>
+
+          <h3 className="mt-4">Lista de Anuncios</h3>
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {anuncios.map((anuncio) => (
+                <tr key={anuncio.id}>
+                  <td>{anuncio.titulo}</td>
+                  <td>{anuncio.descripcion}</td>
+                  <td>{anuncio.fecha}</td>
+                  <td>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => eliminarAnuncio(anuncio.id)}
                     >
                       Eliminar
                     </Button>

@@ -20,6 +20,7 @@ import ForoEventos from './Components/ForoEventos';
 import AgregarEvento from './Components/AgregarEvento';
 import EventosDisponibles from './Components/EventosDisponibles';
 import GestionEventos from './Components/GestionEventos';
+import TodosLosAnuncios from './Components/TodosLosAnuncios';
 
 // rutas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -43,7 +44,7 @@ const AppContent = () => {
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   // Rutas donde NO debe aparecer la navbar
-  const noNavbarRoutes = ['/login', '/perfil', '/admin/perfil', '/proximos-eventos', '/eventos','/foro/eventos', '/register'];
+  const noNavbarRoutes = ['/login', '/perfil', '/admin/perfil', '/proximos-eventos', '/eventos','/foro/eventos', '/register', '/todos-los-anuncios'];
   const isNoNavbarRoute = noNavbarRoutes.includes(location.pathname);
 
   // Rutas donde NO debe aparecer el footer
@@ -116,6 +117,7 @@ const AppContent = () => {
             )
           } 
         />
+        <Route path="/todos-los-anuncios" element={<TodosLosAnuncios />} />
       </Routes>
       {!hideFooter && !isNoNavbarRoute && <PieDePagina />}
     </div>
