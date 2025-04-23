@@ -3,6 +3,7 @@ import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../firebase";
+import { guardarEventoPasado } from './eventosService';
 
 const AgregarEvento = () => {
   const [evento, setEvento] = useState({
@@ -30,6 +31,10 @@ const AgregarEvento = () => {
     try {
       const docRef = await addDoc(collection(db, "eventos"), evento);
       console.log("Evento agregado con ID: ", docRef.id);
+      
+      // Guardar en eventos pasados
+      await guardarEventoPasado({...evento, id: docRef.id});
+      
       alert("Evento agregado con éxito");
       navigate("/admin/eventos");
     } catch (e) {

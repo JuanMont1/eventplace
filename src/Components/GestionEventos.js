@@ -23,6 +23,7 @@ import {
 import ModalEliminarEvento from "./ModalEliminarEvento";
 import ModalEditarEvento from "./ModalEditarEvento";
 import ModalEditarProximoEvento from "./ModalEditarProximoEvento";
+import { guardarEventoPasado } from './eventosService';
 
 const GestionEventos = () => {
   const [eventos, setEventos] = useState([]);
@@ -225,6 +226,18 @@ const GestionEventos = () => {
           "Hubo un error al eliminar el próximo evento. Por favor, inténtalo de nuevo."
         );
       }
+    }
+  };
+
+  const crearNuevoEvento = async (nuevoEvento) => {
+    try {
+      const docRef = await addDoc(collection(db, "eventos"), nuevoEvento);
+      await guardarEventoPasado({...nuevoEvento, id: docRef.id});
+      await fetchEventos();
+      alert("Nuevo evento creado y guardado con éxito");
+    } catch (error) {
+      console.error("Error al crear nuevo evento:", error);
+      alert("Hubo un error al crear el nuevo evento. Por favor, inténtalo de nuevo.");
     }
   };
 

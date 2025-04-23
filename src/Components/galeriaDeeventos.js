@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase'; // Asegúrate de que esta ruta sea correcta
 import '../styles/GaleriaEventos.css';
 
 const GaleriaEventos = () => {
@@ -8,8 +10,17 @@ const GaleriaEventos = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const eventosEjemplo = generarEventosEjemplo();
-    setEventos(eventosEjemplo);
+    const fetchEventos = async () => {
+      const eventosCollection = collection(db, 'eventosPasados');
+      const eventosSnapshot = await getDocs(eventosCollection);
+      const eventosList = eventosSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setEventos(eventosList);
+    };
+
+    fetchEventos();
   }, []);
 
   const imagenesEventos = [
