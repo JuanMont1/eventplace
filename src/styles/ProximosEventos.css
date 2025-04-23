@@ -4,7 +4,8 @@
 }
 
 .proximos-eventos-page {
-  background-color: #f8f9fa;
+  padding-top: 80px;
+  background-color: #f0f8f0;
   min-height: 100vh;
   position: relative;
 }
@@ -13,7 +14,7 @@
   position: absolute;
   top: 20px;
   left: 20px;
-  color: #fff;
+  color: #28a745;
   font-size: 1.2rem;
   text-decoration: none;
   display: flex;
@@ -22,34 +23,18 @@
 }
 
 .btn-volver:hover {
-  color: #007bff;
+  color: #218838;
   transform: translateX(-5px);
 }
 
-.hero-section {
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://www.bing.com/ck/a?!&&p=061042a7f6259afd22a4a59b045219cb6d5d74e83d5844903cbf0a32f8a7cc98JmltdHM9MTc0NDQxNjAwMA&ptn=3&ver=2&hsh=4&fclid=18dbf474-a0ce-6f31-3c75-e0bfa1d26e09&u=a1L2ltYWdlcy9zZWFyY2g_cT1oZXJvJTIwaW1hZ2UmRk9STT1JUUZSQkEmaWQ9RDJCRUJDQTk0MkI2N0Y4ODk2OUIwQzgwMjRCMjIwMERDRTM0NEFEQg&ntb=1') center/cover no-repeat;
-  color: white;
-  text-align: center;
-  padding: 120px 0;
-  margin-bottom: 50px;
-}
-
-.hero-section h1 {
-  font-size: 3.5rem;
-  margin-bottom: 20px;
-  animation: fadeInDown 1s ease-out;
-}
-
-.hero-section p {
-  font-size: 1.4rem;
-  max-width: 600px;
-  margin: 0 auto;
-  animation: fadeInUp 1s ease-out;
+h1 {
+  color: #28a745;
+  font-weight: bold;
 }
 
 .search-bar {
   position: relative;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
 }
 
 .search-icon {
@@ -57,33 +42,34 @@
   left: 15px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6c757d;
+  color: #28a745;
 }
 
 .search-input {
   padding: 15px 15px 15px 45px;
-  border-radius: 30px;
-  border: 2px solid #007bff;
+  border-radius: 25px;
+  border: 2px solid #28a745;
   font-size: 1.1rem;
   transition: all 0.3s ease;
 }
 
 .search-input:focus {
-  box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
-  border-color: #0056b3;
+  box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
+  border-color: #218838;
 }
 
 .timeline-container {
   position: relative;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 40px 0;
 }
 
 .timeline-container::after {
   content: '';
   position: absolute;
   width: 6px;
-  background-color: #007bff;
+  background-color: #28a745;
   top: 0;
   bottom: 0;
   left: 50%;
@@ -95,6 +81,7 @@
   position: relative;
   background-color: inherit;
   width: 50%;
+  box-sizing: border-box;
 }
 
 .timeline-item::after {
@@ -104,7 +91,7 @@
   height: 25px;
   right: -17px;
   background-color: white;
-  border: 4px solid #007bff;
+  border: 4px solid #28a745;
   top: 15px;
   border-radius: 50%;
   z-index: 1;
@@ -126,9 +113,9 @@
   width: 0;
   z-index: 1;
   right: 30px;
-  border: medium solid #007bff;
+  border: medium solid #28a745;
   border-width: 10px 0 10px 10px;
-  border-color: transparent transparent transparent #007bff;
+  border-color: transparent transparent transparent #28a745;
 }
 
 .right::before {
@@ -139,9 +126,9 @@
   width: 0;
   z-index: 1;
   left: 30px;
-  border: medium solid #007bff;
+  border: medium solid #28a745;
   border-width: 10px 10px 10px 0;
-  border-color: transparent #007bff transparent transparent;
+  border-color: transparent #28a745 transparent transparent;
 }
 
 .right::after {
@@ -149,105 +136,81 @@
 }
 
 .timeline-content {
-  padding: 20px 30px;
+  padding: 20px;
   background-color: white;
   position: relative;
   border-radius: 6px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .timeline-content:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 20px rgba(40, 167, 69, 0.2);
+}
+
+.evento-imagen {
+  width: 100%;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.evento-imagen img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  object-fit: cover;
+  aspect-ratio: 16 / 9;
+}
+
+.evento-info {
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  background-color: white;
+  padding-top: 15px;
 }
 
 .evento-fecha {
   font-weight: bold;
-  color: #007bff;
+  color: #28a745;
   margin-bottom: 10px;
-}
-
-.titulo-pagina {
-  color: #333;
-  font-weight: bold;
-  margin-bottom: 2rem;
-}
-
-.filtro-label {
-  font-weight: bold;
-  color: #555;
-}
-
-.filtro-select {
-  border-radius: 20px;
-  border: 2px solid #007bff;
-  padding: 0.5rem 1rem;
-}
-
-.evento-card {
-  transition: transform 0.3s ease-in-out;
-  overflow: hidden;
-}
-
-.evento-card:hover {
-  transform: translateY(-5px);
-}
-
-.imagen-container {
-  position: relative;
-  overflow: hidden;
-}
-
-.evento-imagen {
-  height: 200px;
-  object-fit: cover;
-  transition: transform 0.3s ease-in-out;
-}
-
-.evento-card:hover .evento-imagen {
-  transform: scale(1.05);
-}
-
-.categoria-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: rgba(0, 123, 255, 0.8);
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 15px;
-  font-size: 0.8rem;
 }
 
 .evento-titulo {
   font-weight: bold;
   color: #333;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
 }
 
 .evento-descripcion {
   color: #666;
   font-size: 0.9rem;
   margin-bottom: 15px;
+  line-height: 1.4;
 }
 
 .evento-detalles {
-  font-size: 0.9rem;
-  color: #6c757d;
   margin-bottom: 15px;
 }
 
-.btn-ver-detalles {
-  border-radius: 20px;
-  padding: 0.5rem 1.5rem;
-  font-weight: bold;
-  transition: all 0.3s ease-in-out;
+.evento-detalles p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+  color: #666;
+  font-size: 0.9rem;
 }
 
-.btn-ver-detalles:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+.evento-detalles p svg {
+  margin-right: 8px;
+  color: #28a745;
 }
 
 .btn-mas-info {
@@ -257,11 +220,11 @@
 }
 
 .btn-mas-info:hover {
-  background-color: #007bff;
+  background-color: #28a745;
   color: white;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   .timeline-container::after {
     left: 31px;
   }
@@ -274,9 +237,9 @@
   
   .timeline-item::before {
     left: 60px;
-    border: medium solid #007bff;
+    border: medium solid #28a745;
     border-width: 10px 10px 10px 0;
-    border-color: transparent #007bff transparent transparent;
+    border-color: transparent #28a745 transparent transparent;
   }
 
   .left::after, .right::after {
@@ -285,6 +248,16 @@
 
   .right {
     left: 0%;
+  }
+
+  .evento-imagen {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  .evento-imagen img {
+    aspect-ratio: 16 / 9;
   }
 }
 

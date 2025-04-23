@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/GaleriaEventos.css';
 
 const GaleriaEventos = () => {
   const [eventos, setEventos] = useState([]);
   const [filtroCategoria, setFiltroCategoria] = useState('Todos');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const eventosEjemplo = generarEventosEjemplo();
@@ -37,8 +39,15 @@ const GaleriaEventos = () => {
     ? eventos 
     : eventos.filter(evento => evento.categoria === filtroCategoria);
 
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="galeria-eventos">
+      <button onClick={handleGoBack} className="btn-regresar">
+        ← Regresar
+      </button>
       <h1 className="galeria-titulo">Galería de Eventos Pasados</h1>
       <p className="galeria-descripcion">
         Explora nuestra colección de eventos memorables que han dado forma a nuestra comunidad a lo largo del tiempo.

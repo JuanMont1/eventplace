@@ -39,7 +39,7 @@ const AgregarEvento = () => {
   };
 
   return (
-    <div style={{ paddingTop: "300px" }}>
+    <div style={{ paddingBottom: "24px" }}>
       <Container>
         <h2 className="my-4">Agregar Nuevo Evento</h2>
         <Form onSubmit={handleSubmit}>

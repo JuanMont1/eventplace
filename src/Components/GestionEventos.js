@@ -1,16 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Table,
-  Button,
-  Modal,
-  Tabs,
-  Tab,
-  Form,
-  Card,
-  Row,
-  Col,
-} from "react-bootstrap";
+import { Container, Table, Button, Tabs, Tab, Row, Col } from "react-bootstrap";
 import { db } from "../firebase";
 import {
   collection,
@@ -21,12 +10,19 @@ import {
   where,
   updateDoc,
   writeBatch,
-  getDoc,
-  setDoc,
+  addDoc,
 } from "firebase/firestore";
-import { useAuth } from "../contexts/AuthContext";
+import AgregarProximoEventoForm from "./AgregarProximoEventoForm";
+import AgregarEvento from "./AgregarEvento";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers, faCalendarAlt, faTag } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUsers,
+  faCalendarAlt,
+  faTag,
+} from "@fortawesome/free-solid-svg-icons";
+import ModalEliminarEvento from "./ModalEliminarEvento";
+import ModalEditarEvento from "./ModalEditarEvento";
+import ModalEditarProximoEvento from "./ModalEditarProximoEvento";
 
 const GestionEventos = () => {
   const [eventos, setEventos] = useState([]);
@@ -34,37 +30,67 @@ const GestionEventos = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [eventoAEliminar, setEventoAEliminar] = useState(null);
   const [eventoAEditar, setEventoAEditar] = useState(null);
-  const [eventosDisponibles, setEventosDisponibles] = useState([]);
+  const [proximosEventos, setProximosEventos] = useState([]);
   const [contadorEventos, setContadorEventos] = useState({});
+  const [nuevoEvento, setNuevoEvento] = useState({
+    nombre: "",
+    categoria: "",
+    fecha: "",
+    hora: "",
+    lugar: "",
+    descripcion: "",
+    imagen: "",
+  });
+  const [showEditProximoModal, setShowEditProximoModal] = useState(false);
+  const [proximoEventoAEditar, setProximoEventoAEditar] = useState(null);
 
   const fetchEventos = async () => {
     try {
-      const eventosCollection = collection(db, "eventos");
-      const eventosSnapshot = await getDocs(eventosCollection);
+      const eventosSnapshot = await getDocs(collection(db, "eventos"));
       const eventosData = eventosSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setEventos(eventosData);
-      setEventosDisponibles(eventosData);
-      console.log("Eventos actualizados:", eventosData);
     } catch (error) {
       console.error("Error al obtener eventos:", error);
     }
   };
 
+  const fetchProximosEventos = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "proximosEventos"));
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setProximosEventos(data);
+    } catch (error) {
+      console.error("Error al obtener próximos eventos:", error);
+    }
+  };
+
+  const countSubscriptions = async () => {
+    const usersSnapshot = await getDocs(collection(db, "users"));
+    const counts = {};
+    usersSnapshot.forEach((userDoc) => {
+      const suscripciones = userDoc.data().suscripciones || [];
+      suscripciones.forEach((sub) => {
+        counts[sub.id] = (counts[sub.id] || 0) + 1;
+      });
+    });
+    setContadorEventos(counts);
+  };
+
   useEffect(() => {
     fetchEventos();
+    fetchProximosEventos();
+    countSubscriptions();
   }, []);
 
   const handleEliminar = (evento) => {
     setEventoAEliminar(evento);
     setShowDeleteModal(true);
-  };
-
-  const handleEditar = (evento) => {
-    setEventoAEditar({ ...evento });
-    setShowEditModal(true);
   };
 
   const confirmarEliminar = async () => {
@@ -76,26 +102,42 @@ const GestionEventos = () => {
         setShowDeleteModal(false);
       } catch (error) {
         console.error("Error al eliminar el evento:", error);
-        alert(
-          "Hubo un error al eliminar el evento. Por favor, inténtalo de nuevo."
-        );
       }
     }
   };
 
+  const eliminarSuscripcionesDeUsuarios = async (eventoId) => {
+    const q = query(
+      collection(db, "users"),
+      where("suscripciones", "array-contains", { id: eventoId })
+    );
+    const snapshot = await getDocs(q);
+
+    const batch = writeBatch(db);
+    snapshot.forEach((docSnap) => {
+      const ref = doc(db, "users", docSnap.id);
+      const nuevasSuscripciones = docSnap
+        .data()
+        .suscripciones.filter((s) => s.id !== eventoId);
+      batch.update(ref, { suscripciones: nuevasSuscripciones });
+    });
+    await batch.commit();
+  };
+
+  const handleEditar = (evento) => {
+    setEventoAEditar({ ...evento });
+    setShowEditModal(true);
+  };
+
   const handleEditarChange = (e) => {
     const { name, value } = e.target;
-    setEventoAEditar((prevEvento) => ({
-      ...prevEvento,
-      [name]: value,
-    }));
+    setEventoAEditar((prev) => ({ ...prev, [name]: value }));
   };
 
   const confirmarEditar = async () => {
     if (eventoAEditar) {
       try {
-        const eventoRef = doc(db, "eventos", eventoAEditar.id);
-        await updateDoc(eventoRef, {
+        await updateDoc(doc(db, "eventos", eventoAEditar.id), {
           nombre: eventoAEditar.nombre,
           categoria: eventoAEditar.categoria,
           fecha: eventoAEditar.fecha,
@@ -105,111 +147,97 @@ const GestionEventos = () => {
         alert("Evento actualizado con éxito");
       } catch (error) {
         console.error("Error al editar el evento:", error);
-        alert(
-          "Hubo un error al editar el evento. Por favor, inténtalo de nuevo."
-        );
       }
     }
   };
 
-  const eliminarSuscripcionesDeUsuarios = async (eventoId) => {
-    const usersRef = collection(db, "users");
-    const q = query(
-      usersRef,
-      where("suscripciones", "array-contains", { id: eventoId })
-    );
-    const querySnapshot = await getDocs(q);
-
-    const batch = writeBatch(db);
-    querySnapshot.forEach((userDoc) => {
-      const userRef = doc(db, "users", userDoc.id);
-      const suscripciones = userDoc
-        .data()
-        .suscripciones.filter((s) => s.id !== eventoId);
-      batch.update(userRef, { suscripciones: suscripciones });
-    });
-
-    await batch.commit();
+  const handleNuevoEventoChange = (e) => {
+    const { name, value } = e.target;
+    setNuevoEvento((prev) => ({ ...prev, [name]: value }));
   };
 
-  const { currentUser } = useAuth();
-  const [userSuscripciones, setUserSuscripciones] = useState([]);
-
-  useEffect(() => {
-    const fetchUserSuscripciones = async () => {
-      if (currentUser) {
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          setUserSuscripciones(userSnap.data().suscripciones || []);
-        }
-      }
-    };
-
-    fetchUserSuscripciones();
-  }, [currentUser]);
-
-  const isSuscrito = (eventoId) => {
-    return userSuscripciones.some((suscripcion) => suscripcion.id === eventoId);
-  };
-
-  const toggleSuscripcion = async (evento) => {
-    if (!currentUser) {
-      alert("Por favor, inicia sesión para suscribirte a eventos.");
-      return;
-    }
-
-    const userRef = doc(db, "users", currentUser.uid);
+  const agregarProximoEvento = async (e) => {
+    e.preventDefault();
     try {
-      const userSnap = await getDoc(userRef);
-      let currentSuscripciones = userSnap.exists()
-        ? userSnap.data().suscripciones || []
-        : [];
-
-      if (currentSuscripciones.some((e) => e.id === evento.id)) {
-        currentSuscripciones = currentSuscripciones.filter(
-          (e) => e.id !== evento.id
-        );
-      } else {
-        currentSuscripciones.push(evento);
-      }
-
-      await setDoc(
-        userRef,
-        { suscripciones: currentSuscripciones },
-        { merge: true }
-      );
-      setUserSuscripciones(currentSuscripciones);
-      console.log(`Toggle suscripción para evento ${evento.id}`);
+      await addDoc(collection(db, "proximosEventos"), nuevoEvento);
+      setNuevoEvento({
+        nombre: "",
+        categoria: "",
+        fecha: "",
+        hora: "",
+        lugar: "",
+        descripcion: "",
+        imagen: "",
+      });
+      fetchProximosEventos();
+      alert("Próximo evento agregado con éxito");
     } catch (error) {
-      console.error("Error al actualizar suscripciones:", error);
-      alert(
-        "Hubo un error al actualizar la suscripción. Por favor, inténtalo de nuevo."
-      );
+      console.error("Error al agregar próximo evento:", error);
     }
   };
 
-  useEffect(() => {
-    const countSubscriptions = async () => {
-      const usersSnapshot = await getDocs(collection(db, "users"));
-      const subscriptionCounts = {};
-      usersSnapshot.forEach((userDoc) => {
-        const suscripciones = userDoc.data().suscripciones || [];
-        suscripciones.forEach((sub) => {
-          subscriptionCounts[sub.id] = (subscriptionCounts[sub.id] || 0) + 1;
-        });
-      });
-      setContadorEventos(subscriptionCounts);
-    };
+  const handleEditarProximo = (evento) => {
+    setProximoEventoAEditar({ ...evento });
+    setShowEditProximoModal(true);
+  };
 
-    countSubscriptions();
-  }, []);
+  const handleEditarProximoChange = (e) => {
+    const { name, value } = e.target;
+    setProximoEventoAEditar((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const confirmarEditarProximo = async () => {
+    if (proximoEventoAEditar) {
+      try {
+        await updateDoc(doc(db, "proximosEventos", proximoEventoAEditar.id), {
+          nombre: proximoEventoAEditar.nombre,
+          categoria: proximoEventoAEditar.categoria,
+          fecha: proximoEventoAEditar.fecha,
+          hora: proximoEventoAEditar.hora,
+          lugar: proximoEventoAEditar.lugar,
+          descripcion: proximoEventoAEditar.descripcion,
+        });
+        await fetchProximosEventos();
+        setShowEditProximoModal(false);
+        alert("Próximo evento actualizado con éxito");
+      } catch (error) {
+        console.error("Error al editar el próximo evento:", error);
+        alert(
+          "Hubo un error al editar el próximo evento. Por favor, inténtalo de nuevo."
+        );
+      }
+    }
+  };
+
+  const handleEliminarProximo = async (evento) => {
+    if (
+      window.confirm(
+        `¿Estás seguro de eliminar el próximo evento "${evento.nombre}"?`
+      )
+    ) {
+      try {
+        await deleteDoc(doc(db, "proximosEventos", evento.id));
+        await fetchProximosEventos();
+        alert("Próximo evento eliminado con éxito");
+      } catch (error) {
+        console.error("Error al eliminar el próximo evento:", error);
+        alert(
+          "Hubo un error al eliminar el próximo evento. Por favor, inténtalo de nuevo."
+        );
+      }
+    }
+  };
 
   return (
-    <Container style={{ paddingTop: "300px" }}>
+    <Container style={{ paddingTop: "250px" }}>
       <h2 className="my-4">Gestión de Eventos</h2>
-      <Tabs defaultActiveKey="lista" id="gestion-eventos-tabs" className="mb-3">
+      <Tabs defaultActiveKey="lista" id="tabs" className="mb-3">
         <Tab eventKey="lista" title="Lista de Eventos">
+          <AgregarEvento
+            eventos={eventos}
+            onEditar={handleEditar}
+            onEliminar={handleEliminar}
+          />
           <Row xs={1} sm={2} md={3} lg={4} className="g-4">
             {eventos.map((evento) => (
               <Col key={evento.id}>
@@ -231,135 +259,105 @@ const GestionEventos = () => {
                     <span className="evento-categoria">
                       <FontAwesomeIcon icon={faTag} /> {evento.categoria}
                     </span>
-                      <p className="card-text">{evento.descripcion}</p>
-                    </div>
+                    <p className="card-text">{evento.descripcion}</p>
                   </div>
-                  <div className="button-container mt-2">
-                    <Button
-                      variant="primary"
-                      onClick={() => handleEditar(evento)}
-                      className="me-2"
-                    >
-                      Editar
-                    </Button>
-                    <Button
-                      variant="danger"
-                      onClick={() => handleEliminar(evento)}
-                    >
-                      Eliminar
-                    </Button>
+                </div>
+                <div className="button-container mt-2">
+                  <Button
+                    variant="primary"
+                    onClick={() => handleEditar(evento)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleEliminar(evento)}
+                  >
+                    Eliminar
+                  </Button>
                 </div>
               </Col>
             ))}
           </Row>
         </Tab>
-        
+
+        <Tab eventKey="proximos" title="Próximos Eventos">
+          <h3>Agregar Próximo Evento</h3>
+          <AgregarProximoEventoForm
+            nuevoEvento={nuevoEvento}
+            handleNuevoEventoChange={handleNuevoEventoChange}
+            agregarProximoEvento={agregarProximoEvento}
+          />
+
+          <h3 className="mt-4">Lista de Próximos Eventos</h3>
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Lugar</th>
+                <th>Categoría</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {proximosEventos.map((evento) => (
+                <tr key={evento.id}>
+                  <td>{evento.nombre}</td>
+                  <td>{evento.fecha}</td>
+                  <td>{evento.hora}</td>
+                  <td>{evento.lugar}</td>
+                  <td>{evento.categoria}</td>
+                  <td>{evento.descripcion}</td>
+                  <td>
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      className="me-2"
+                      onClick={() => handleEditarProximo(evento)}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleEliminarProximo(evento)}
+                    >
+                      Eliminar
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Tab>
       </Tabs>
 
-      {/* Modal de Eliminación */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar eliminación</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          ¿Estás seguro de que deseas eliminar permanentemente el evento "
-          {eventoAEliminar?.nombre}"?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="danger" onClick={confirmarEliminar}>
-            Eliminar Permanentemente
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalEliminarEvento
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        eventoAEliminar={eventoAEliminar}
+        onConfirm={confirmarEliminar}
+      />
 
-      {/* Modal de Edición */}
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Editar Evento</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control
-                type="text"
-                name="nombre"
-                value={eventoAEditar?.nombre || ""}
-                onChange={handleEditarChange}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Categoría</Form.Label>
-              <Form.Control
-                type="text"
-                name="categoria"
-                value={eventoAEditar?.categoria || ""}
-                onChange={handleEditarChange}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Fecha</Form.Label>
-              <Form.Control
-                type="date"
-                name="fecha"
-                value={eventoAEditar?.fecha || ""}
-                onChange={handleEditarChange}
-              />
-            </Form.Group>
-            {/* Agrega más campos según sea necesario */}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={confirmarEditar}>
-            Guardar Cambios
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalEditarEvento
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        eventoAEditar={eventoAEditar}
+        handleEditarChange={handleEditarChange}
+        onConfirm={confirmarEditar}
+      />
+
+      <ModalEditarProximoEvento
+        show={showEditProximoModal}
+        onHide={() => setShowEditProximoModal(false)}
+        proximoEventoAEditar={proximoEventoAEditar}
+        handleEditarProximoChange={handleEditarProximoChange}
+        onConfirm={confirmarEditarProximo}
+      />
     </Container>
-  );
-};
-
-const EventosDisponibles = ({
-  eventosFiltrados,
-  isSuscrito,
-  toggleSuscripcion,
-  contadorEventos,
-}) => {
-  return (
-    <Row xs={1} md={2} lg={3} className="g-4">
-      {eventosFiltrados.map((evento) => (
-        <Col key={evento.id}>
-          <Card className="h-100">
-            <Card.Img variant="top" src={evento.imagen} />
-            <Card.Body>
-              <Card.Title>{evento.nombre}</Card.Title>
-              <Card.Text>
-                <strong>Categoría:</strong> {evento.categoria}
-                <br />
-                <strong>Fecha:</strong> {evento.fecha}
-                <br />
-                <strong>Facultad:</strong> {evento.facultad}
-                <br />
-                <strong>Suscripciones:</strong>{" "}
-                {contadorEventos[evento.id] || 0}
-              </Card.Text>
-              <Button
-                variant={isSuscrito(evento.id) ? "danger" : "primary"}
-                onClick={() => toggleSuscripcion(evento)}
-              >
-                {isSuscrito(evento.id) ? "Cancelar suscripción" : "Suscribirse"}
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
-      ))}
-    </Row>
   );
 };
 

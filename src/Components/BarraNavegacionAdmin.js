@@ -23,7 +23,7 @@ export const BarraNavegacionAdmin = () => {
   };
 
   const handleAddEvent = () => {
-    navigate('/admin/agregar-evento');
+    navigate('/admin/gestionar-eventos');
   };
 
   return (
@@ -35,11 +35,8 @@ export const BarraNavegacionAdmin = () => {
         <Navbar.Toggle aria-controls="admin-navbar-nav" />
         <Navbar.Collapse id="admin-navbar-nav" className="justify-content-end">
           <Nav>
-            <Nav.Link as={Link} to="/admin/dashboard">Dashboard</Nav.Link>
-            <NavDropdown title="Eventos" id="admin-nav-dropdown">
-              <NavDropdown.Item as={Link} to="/admin/agregar-evento">Agregar Evento</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/admin/gestionar-eventos">Gestionar Eventos</NavDropdown.Item>
-            </NavDropdown>
+            
+            
             <Nav.Link as={Link} to="/admin-usuarios">Usuarios</Nav.Link>
             <Nav.Link as={Link} to="/admin-reportes">Reportes</Nav.Link>
             <Button 
@@ -47,15 +44,14 @@ export const BarraNavegacionAdmin = () => {
               className="mx-2"
               onClick={handleAddEvent}
             >
-              Agregar Nuevo Evento
+              Gestionar Eventos
             </Button>
             <NavDropdown 
               title={user ? `${user.name || user.email}` : 'Cargando...'} 
               id="admin-nav-dropdown"
               align="end"
             >
-              <NavDropdown.Item onClick={handleProfileClick}>Ver Perfil</NavDropdown.Item>
-              <NavDropdown.Divider />
+             
               <NavDropdown.Item onClick={handleLogout}>Cerrar Sesión</NavDropdown.Item>
             </NavDropdown>
           </Nav>

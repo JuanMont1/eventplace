@@ -115,10 +115,13 @@ export const BarraNavegacion = () => {
                 className="justify-content-end"
               >
                 <Nav className="alineacion-items">
-                  <Nav.Link as={Link} to="/eventos">
-                    GaleriaEventos
-                  </Nav.Link>
                   <Nav.Link as={Link} to="/">
+                    inicio
+                  </Nav.Link>
+                  <Nav.Link as={Link} to="/eventos">
+                    Galeria De Eventos
+                  </Nav.Link>
+                  <Nav.Link as={Link} to="/calendario">
                     Calendario
                   </Nav.Link>
                   <Nav.Link as={Link} to="/MisSuscripciones">

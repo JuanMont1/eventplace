@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Carousel, Alert, Modal } from 'react-bootstrap';
-import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaClock, FaBullhorn, FaArrowRight, FaCalendar, FaUniversity, FaQuoteLeft, FaQuoteRight, FaStar, FaPaperPlane, FaEnvelope } from 'react-icons/fa';
+import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaBullhorn, FaArrowRight, FaCalendar, FaUniversity, FaQuoteLeft, FaQuoteRight, FaStar, FaPaperPlane, FaEnvelope, FaComments, FaUser, FaLightbulb, FaHistory, FaTools } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../styles/PaginaPrincipal.css';
 import CountUp from 'react-countup';
 import welcomeGif from '../archivos/img/abeja.gif';
+import L from 'leaflet';
 import { BarraNavegacion } from './BarraNavegacion';
-
-
+import PieDePagina from './pieDePagina';
+import emailjs from 'emailjs-com';
+import soachaIconImg from '../archivos/img/Punto de marca.png';
 const Hero = () => {
   return (
     <div className="hero-wrapper">
@@ -35,16 +37,9 @@ const Hero = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
-              Tu puerta de entrada a experiencias universitarias inolvidables
+              Tu puerta de entrada a experiencias universitarias inolvidables, Descubre, participa y crea momentos que definirán tu vida universitaria
             </motion.p>
-            <motion.p
-              className="hero-description"
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-            >
-              Descubre, participa y crea momentos que definirán tu vida universitaria
-            </motion.p>
+            
             <motion.div
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -100,7 +95,7 @@ const CountdownTimer = () => {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <h2>Pr&oacute;ximo Evento Grande</h2>
+      <h2>Proximo Super Evento:</h2>
       <div className="timer">
         {Object.entries(timeLeft).map(([key, value]) => (
           <div key={key} className="time-segment">
@@ -114,21 +109,31 @@ const CountdownTimer = () => {
 };
 
 const CampusMap = () => {
+  const eventLocation = [4.5787567, -74.2234352];
+
+  const soachaIcon = new L.Icon({
+    iconUrl: soachaIconImg,
+    iconSize: [50, 50],
+    iconAnchor: [25, 50],
+    popupAnchor: [0, -50],
+  });
+
   return (
     <div className="campus-map-container">
       <div className="campus-map-content">
-        <h2>Mapa de los eventos</h2>
-        <h3>Observa los lugares en los que se har&aacute;n los eventos</h3>
+        <h2>📍 Ubicación de los eventos</h2>
+        <h3>Explora en el mapa los espacios donde se llevarán a cabo las actividades universitarias más importantes</h3>
       </div>
       <div className="campus-map">
-        <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false} style={{ height: '600px', width: '100%' }}>
+        <MapContainer center={eventLocation} zoom={20} scrollWheelZoom={false} style={{ height: '600px', width: '100%' }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <Marker position={[51.505, -0.09]}>
+          <Marker position={eventLocation} icon={soachaIcon}>
             <Popup>
-              Ubicaci&oacute;n del pr&oacute;ximo evento
+              Universidad de Cundinamarca, sede Soacha<br />
+              Diagonal 9 No. 4B-85, Soacha, Cundinamarca
             </Popup>
           </Marker>
         </MapContainer>
@@ -136,6 +141,8 @@ const CampusMap = () => {
     </div>
   );
 };
+
+
 
 const CampusMapSection = () => {
   return (
@@ -192,7 +199,7 @@ const EventosDestacados = () => {
       <div className="eventos-hero">
         <div className="eventos-hero-content">
           <h2>Eventos Destacados</h2>
-          <p className="eventos-hero-subtitle">Descubre experiencias &uacute;nicas que marcar&aacute;n tu vida universitaria</p>
+          <p className="eventos-hero-subtitle">Descubre las actividades con más inscripciones, seleccionadas por su impacto, popularidad y valor para tu crecimiento académico y personal. ¡No te las pierdas!</p>
         </div>
       </div>
       <div className="eventos-container">
@@ -241,71 +248,143 @@ const EventosDestacados = () => {
   );
 };
 
-const CalendarioResumen = () => {
-  const proximosEventos = [
-    {
-      fecha: '15 Mayo',
-      titulo: 'Seminario de Investigaci&oacute;n',
-      hora: '14:00 - 17:00',
-      lugar: 'Auditorio Principal'
-    },
-    {
-      fecha: '22 Mayo',
-      titulo: 'Torneo de Debate',
-      hora: '10:00 - 18:00',
-      lugar: 'Sala de Conferencias A'
-    },
-    {
-      fecha: '1 Junio',
-      titulo: 'Exposici&oacute;n de Arte Estudiantil',
-      hora: '11:00 - 20:00',
-      lugar: 'Galer&iacute;a de Arte del Campus'
-    },
-    {
-      fecha: '10 Junio',
-      titulo: 'Conferencia de Innovaci&oacute;n Tecnol&oacute;gica',
-      hora: '09:00 - 13:00',
-      lugar: 'Centro de Tecnolog&iacute;a'
-    }
-  ];
+
+
+
+
+
+const FormularioOpiniones = () => {
+  const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState('');
+  const [tipo, setTipo] = useState('opinion');
+  const [mensaje, setMensaje] = useState('');
+  const [enviado, setEnviado] = useState(false);
+  const [error, setError] = useState('');
+
+  const manejarEnvio = (e) => {
+    e.preventDefault();
+    setError('');
+
+    emailjs.send(
+        'YOUR_SERVICE_ID',
+        'YOUR_TEMPLATE_ID',
+        {
+          to_email: 'juancarvafb@gmail.com',
+          from_name: nombre,
+          from_email: email,
+          message_type: tipo,
+          message: mensaje
+        },
+        'YOUR_USER_ID'
+      )
+      .then((response) => {
+        console.log('SUCCESS!', response.status, response.text);
+        setEnviado(true);
+      }, (err) => {
+        console.log('FAILED...', err);
+        setError('Hubo un error al enviar el mensaje. Por favor, intenta de nuevo.');
+      });
+  };
 
   return (
-    <section className="calendario-resumen">
-      <h2>Pr&oacute;ximos Eventos</h2>
-      <div className="eventos-timeline">
-        {proximosEventos.map((evento, index) => (
-          <div key={index} className="evento-item">
-            <div className="evento-fecha">{evento.fecha}</div>
-            <div className="evento-contenido">
-              <h3>{evento.titulo}</h3>
-              <p><FaClock /> {evento.hora}</p>
-              <p><FaMapMarkerAlt /> {evento.lugar}</p>
+    <section className="formulario-opiniones-seccion">
+      <div className="formulario-contenedor">
+        <div className="formulario-info">
+          <h2><FaLightbulb /> Tu opinión es importante</h2>
+          <p>Nos esforzamos por mejorar constantemente. Tu feedback nos ayuda a crear mejores experiencias para toda la comunidad universitaria.</p>
+          <ul>
+            <li><FaLightbulb /> Comparte tus ideas para nuevos eventos</li>
+            <li><FaHistory /> Cuéntanos sobre tu experiencia en eventos pasados</li>
+            <li><FaTools /> Sugiere mejoras para nuestros servicios</li>
+          </ul>
+        </div>
+        <div className="formulario-wrapper">
+          <h2><FaComments /> Envía tu Opinión, Queja o Reclamo</h2>
+          {enviado ? (
+            <div className="mensaje-exito">
+              <h3><FaPaperPlane /> ¡Gracias por tu mensaje!</h3>
+              <p>Tu opinión, queja o reclamo ha sido enviado correctamente. Te responderemos pronto.</p>
             </div>
-          </div>
-        ))}
+          ) : (
+            <form onSubmit={manejarEnvio}>
+              <div className="campo-formulario">
+                <label htmlFor="nombre"><FaUser /> Nombre</label>
+                <input
+                  type="text"
+                  id="nombre"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="campo-formulario">
+                <label htmlFor="email"><FaEnvelope /> Correo Electrónico</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="campo-formulario">
+                <label htmlFor="tipo"><FaComments /> Tipo de Mensaje</label>
+                <select
+                  id="tipo"
+                  value={tipo}
+                  onChange={(e) => setTipo(e.target.value)}
+                >
+                  <option value="opinion">Opinión</option>
+                  <option value="queja">Queja</option>
+                  <option value="reclamo">Reclamo</option>
+                </select>
+              </div>
+
+              <div className="campo-formulario">
+                <label htmlFor="mensaje"><FaComments /> Tu Mensaje</label>
+                <textarea
+                  id="mensaje"
+                  value={mensaje}
+                  onChange={(e) => setMensaje(e.target.value)}
+                  required
+                />
+              </div>
+
+              {error && <div className="error-mensaje">{error}</div>}
+
+              <button type="submit" className="btn-enviar">
+                <FaPaperPlane /> Enviar Mensaje
+              </button>
+            </form>
+          )}
+        </div>
       </div>
-      <button className="btn-ver-todos">Ver todos los eventos</button>
     </section>
   );
 };
+
+
+
 
 const UltimosAnuncios = () => {
   const anuncios = [
     {
       titulo: 'Nuevo sistema de registro para eventos',
-      descripcion: 'Hemos implementado un nuevo sistema de registro en l&iacute;nea para facilitar tu participaci&oacute;n en los eventos.',
+      descripcion: 'Hemos implementado un nuevo sistema de registro en linea para facilitar tu participacion en los eventos.',
       fecha: '10 de Mayo, 2023',
       icono: <FaBullhorn />
     },
     {
-      titulo: 'Cambios en el calendario acad&eacute;mico',
-      descripcion: 'Se han realizado ajustes importantes en el calendario acad&eacute;mico. Revisa las nuevas fechas.',
+      titulo: 'Cambios en el calendario academico',
+      descripcion: 'Se han realizado ajustes importantes en el calendario academico. Revisa las nuevas fechas.',
       fecha: '5 de Mayo, 2023',
       icono: <FaCalendarAlt />
     },
     {
       titulo: 'Convocatoria para voluntarios en eventos',
-      descripcion: '&Uacute;nete a nuestro equipo de voluntarios y s&eacute; parte de la organizaci&oacute;n de eventos emocionantes!',
+      descripcion: 'Unete a nuestro equipo de voluntarios y se parte de la organizacin de eventos emocionantes!',
       fecha: '1 de Mayo, 2023',
       icono: <FaUsers />
     }
@@ -335,28 +414,29 @@ const UltimosAnuncios = () => {
 
 const EstadisticasEventos = () => {
   const estadisticas = [
-    { icono: <FaCalendar />, numero: 500, texto: 'Eventos al a&ntilde;o', sufijo: '+' },
-    { icono: <FaUsers />, numero: 10000, texto: 'Participantes', sufijo: '+' },
-    { icono: <FaUniversity />, numero: 50, texto: 'Organizaciones estudiantiles', sufijo: '+' }
-  ];
-
-  return (
-    <section className="estadisticas-eventos">
-      <h2>Nuestro Impacto en N&uacute;meros</h2>
-      <div className="estadisticas-container">
-        {estadisticas.map((stat, index) => (
-          <div key={index} className="estadistica-item">
-            <div className="estadistica-icono">{stat.icono}</div>
-            <div className="estadistica-numero">
-              <CountUp end={stat.numero} duration={2.5} separator="," suffix={stat.sufijo} />
+      { icono: <FaCalendar />, numero: 500, texto: 'Eventos al año', sufijo: '+' },
+      { icono: <FaUsers />, numero: 10000, texto: 'Participantes', sufijo: '+' },
+      { icono: <FaUniversity />, numero: 50, texto: 'Organizaciones estudiantiles', sufijo: '+' }
+    ];
+  
+    return (
+      <section className="estadisticas-eventos">
+        <h2 className="estadisticas-titulo">Nuestro Impacto en Números</h2>
+        <div className="estadisticas-container">
+          {estadisticas.map((stat, index) => (
+            <div key={index} className="estadistica-item">
+              <div className="estadistica-icono">{stat.icono}</div>
+              <div className="estadistica-numero">
+                <CountUp end={stat.numero} duration={2.5} separator="," suffix={stat.sufijo} />
+              </div>
+              <p className="estadistica-texto">{stat.texto}</p>
             </div>
-            <p className="estadistica-texto">{stat.texto}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-};
+          ))}
+        </div>
+      </section>
+    );
+  };
+
 
 const TestimoniosEstudiantes = () => {
   const [index, setIndex] = React.useState(0);
@@ -430,70 +510,78 @@ const BoletinInformativo = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!email) {
-      setError('Por favor, ingresa tu correo electr&oacute;nico.');
-      return;
-    }
-    // Aqu&iacute; ir&iacute;a la l&oacute;gica para enviar el email a tu backend
-    console.log('Email subscrito:', email);
-    setSubscribed(true);
-    setEmail('');
-    setError('');
+        setError('Por favor, ingresa tu correo electrónico.');
+        return;
+      }
+      console.log('Email subscrito:', email);
+      setSubscribed(true);
+      setEmail('');
+      setError('');
+    };
+  
+    return (
+      <section className="boletin-informativo">
+        <div className="boletin-content">
+          <div className="boletin-header">
+            <FaEnvelope className="boletin-icon" />
+            <h2>Mantente Informado</h2>
+          </div>
+          <p>Suscríbete a nuestro boletín y no te pierdas ningún evento importante</p>
+          {subscribed ? (
+            <Alert variant="success" className="boletin-alert">
+              ¡Gracias por suscribirte! Pronto recibirás noticias emocionantes.
+            </Alert>
+          ) : (
+            <Form onSubmit={handleSubmit} className="boletin-form">
+              <Form.Group controlId="formBasicEmail">
+                <div className="input-group">
+                  <Form.Control
+                    type="email"
+                    placeholder="Tu correo electrónico"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    isInvalid={!!error}
+                  />
+                  <Button variant="primary" type="submit">
+                    <FaPaperPlane /> Suscribirse
+                  </Button>
+                </div>
+                <Form.Control.Feedback type="invalid">
+                  {error}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Form>
+          )}
+          <small className="boletin-disclaimer">
+            Respetamos tu privacidad. Puedes darte de baja en cualquier momento.
+          </small>
+        </div>
+      </section>
+    );
   };
 
-  return (
-    <section className="boletin-informativo">
-      <div className="boletin-content">
-        <FaEnvelope className="boletin-icon" />
-        <h2>Mantente Informado</h2>
-        <p>Suscr&iacute;bete a nuestro bolet&iacute;n y no te pierdas ning&uacute;n evento importante</p>
-        {subscribed ? (
-          <Alert variant="success">
-            ¡Gracias por suscribirte! Pronto recibir&aacute;s noticias emocionantes.
-          </Alert>
-        ) : (
-          <Form onSubmit={handleSubmit} className="boletin-form">
-            <Form.Group controlId="formBasicEmail">
-              <div className="input-group">
-                <Form.Control
-                  type="email"
-                  placeholder="Tu correo electr&oacute;nico"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  isInvalid={!!error}
-                />
-                <Button variant="light" type="submit">
-                  <FaPaperPlane /> Suscribirse
-                </Button>
-              </div>
-              <Form.Control.Feedback type="invalid">
-                {error}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Form>
-        )}
-        <small className="boletin-disclaimer">
-          Respetamos tu privacidad. Puedes darte de baja en cualquier momento.
-        </small>
-      </div>
-    </section>
-  );
-};
+
 
 const PaginaPrincipal = () => {
   return (
-    <div className="pagina-principal">
-      <BarraNavegacion />
-      <Hero />
-      <CountdownTimer />
-      <EventosDestacados />
-      <CampusMapSection />
-      <CalendarioResumen />
-      <UltimosAnuncios />
-      <EstadisticasEventos />
-      <TestimoniosEstudiantes />
-      <BoletinInformativo />
-    </div>
+    <>
+      <div className="pagina-principal">
+        <BarraNavegacion />
+        <Hero />
+        <CountdownTimer />
+        <EventosDestacados />
+        <CampusMapSection />
+        <UltimosAnuncios />
+        <EstadisticasEventos />
+        <TestimoniosEstudiantes />
+        <FormularioOpiniones />
+        <BoletinInformativo />
+      </div>
+      <PieDePagina />
+    </>
   );
 };
 
 export default PaginaPrincipal;
+
+

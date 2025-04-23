@@ -2,7 +2,7 @@
   "name": "eventplace",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://JuanMont1.github.io/eventplace",
+  "homepage": "",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
@@ -12,6 +12,7 @@
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.3.3",
+    "emailjs-com": "^3.2.0",
     "firebase": "^11.6.0",
     "framer-motion": "^12.7.4",
     "leaflet": "^1.9.4",

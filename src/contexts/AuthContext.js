@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { auth, db } from '../firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { setPersistence, inMemoryPersistence, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
 export const AuthContext = createContext();
@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
+    await setPersistence(auth, inMemoryPersistence);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
