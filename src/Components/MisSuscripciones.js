@@ -9,7 +9,7 @@ import {
 import "../styles/MisSuscripciones.css";
 import { BarraNavegacion } from '../Components/BarraNavegacion';
 import { auth, db } from '../firebase';
-import { doc, getDoc, setDoc, onSnapshot, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot, collection, getDocs, updateDoc, increment } from "firebase/firestore";
 import EventosDisponibles from '../Components/EventosDisponibles'; 
 import PieDePagina from "./pieDePagina";
 import EventosDestacadosSection from './EventosDestacadosSection';
@@ -125,50 +125,52 @@ const MisSuscripciones = () => {
     }
 
     const userRef = doc(db, "users", user.uid);
+    const eventoRef = doc(db, "eventos", evento.id);
     const contadorRef = doc(db, "contadores", "eventos");
 
     try {
-      const userSnap = await getDoc(userRef);
-      let currentSuscripciones = userSnap.exists() ? (userSnap.data().suscripciones || []) : [];
+      let newSuscripciones;
+      let cuposIncrement;
 
-      const index = currentSuscripciones.findIndex(e => e.id === evento.id);
-      let incrementValue;
-    
-      if (index !== -1) {
+      if (suscripciones.some(e => e.id === evento.id)) {
         // Cancelar suscripción
-        currentSuscripciones.splice(index, 1);
-        incrementValue = -1;
+        newSuscripciones = suscripciones.filter(e => e.id !== evento.id);
+        cuposIncrement = 1;
       } else {
         // Suscribirse
-        currentSuscripciones.push(evento);
-        incrementValue = 1;
+        if (evento.cuposDisponibles <= 0) {
+          alert("Lo sentimos, no hay cupos disponibles para este evento.");
+          return;
+        }
+        newSuscripciones = [...suscripciones, evento];
+        cuposIncrement = -1;
       }
 
-      // Actualizar suscripciones del usuario
-      await setDoc(userRef, { suscripciones: currentSuscripciones }, { merge: true });
-    
-      // Actualizar el contador de eventos
-      const contadorSnap = await getDoc(contadorRef);
-      let currentContadores = contadorSnap.exists() ? contadorSnap.data() : {};
-    
-      currentContadores[evento.id] = (currentContadores[evento.id] || 0) + incrementValue;
-      if (currentContadores[evento.id] < 0) currentContadores[evento.id] = 0;
-
-      await setDoc(contadorRef, currentContadores);
+      await updateDoc(userRef, { suscripciones: newSuscripciones });
+      await updateDoc(eventoRef, { cuposDisponibles: increment(cuposIncrement) });
+      await updateDoc(contadorRef, { [evento.id]: increment(cuposIncrement * -1) });
 
       // Actualizar estados locales
-      setSuscripciones(currentSuscripciones);
-      setContadorEventos(prevContadores => ({
-        ...prevContadores,
-        [evento.id]: currentContadores[evento.id]
+      setSuscripciones(newSuscripciones);
+      setContadorEventos(prev => ({
+        ...prev,
+        [evento.id]: (prev[evento.id] || 0) + (cuposIncrement * -1)
       }));
 
-      console.log("Suscripciones actualizadas después de toggle:", currentSuscripciones);
-      console.log("Contadores actualizados:", currentContadores);
-    } catch (error) {
-      console.error("Error al actualizar suscripciones o contador:", error);
+      // Actualizar cupos disponibles en el estado de eventos
+      setEventosDisponibles(prevEventos => 
+        prevEventos.map(e => 
+          e.id === evento.id 
+            ? {...e, cuposDisponibles: e.cuposDisponibles + cuposIncrement} 
+            : e
+        )
+      );
+
+    } catch (err) {
+      console.error("Error al actualizar suscripciones:", err);
+      alert("Error al actualizar suscripciones. Por favor, inténtalo de nuevo.");
     }
-  }, [user]);
+  }, [user, suscripciones, setContadorEventos, setEventosDisponibles]);
 
   const eventosFiltrados = useMemo(() => {
     return eventosDisponibles.filter(
@@ -205,6 +207,8 @@ const MisSuscripciones = () => {
         isSuscrito={isSuscrito}
         toggleSuscripcion={toggleSuscripcion}
         contadorEventos={contadorEventos} 
+        eventosDisponibles={eventosDisponibles}
+        setEventosDisponibles={setEventosDisponibles}
       />
 
       <VideoPromoSection />

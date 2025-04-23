@@ -452,9 +452,9 @@ const UltimosAnuncios = () => {
 
 const EstadisticasEventos = () => {
   const estadisticas = [
-      { icono: <FaCalendar />, numero: 500, texto: 'Eventos al año', sufijo: '+' },
-      { icono: <FaUsers />, numero: 10000, texto: 'Participantes', sufijo: '+' },
-      { icono: <FaUniversity />, numero: 50, texto: 'Organizaciones estudiantiles', sufijo: '+' }
+      { icono: <FaCalendar />, numero: 20, texto: 'Eventos al año', sufijo: '+' },
+      { icono: <FaUsers />, numero: 200, texto: 'Estudiantes que Participan', sufijo: '+' },
+      { icono: <FaUniversity />, numero: 5, texto: 'Apoyos universitarios', sufijo: '+' }
     ];
   
     return (
@@ -481,27 +481,28 @@ const TestimoniosEstudiantes = () => {
 
   const testimonios = [
     {
-      nombre: "Mar&iacute;a G&oacute;mez",
-      carrera: "Ingenier&iacute;a Inform&aacute;tica",
-      testimonio: "Los eventos de la universidad han enriquecido enormemente mi experiencia estudiantil. He podido conectar con profesionales de la industria y expandir mis horizontes.",
-      imagen: "https://randomuser.me/api/portraits/women/1.jpg",
-      estrellas: 5
+        nombre: "María Gómez",
+        carrera: "Ingeniería Informática",
+        testimonio: "Los eventos académicos y tecnológicos organizados por la Universidad de Cundinamarca han sido clave en mi formación. Las conferencias y hackathons me han permitido aprender y poner en práctica mis conocimientos.",
+        imagen: "https://randomuser.me/api/portraits/women/1.jpg",
+        estrellas: 5
     },
     {
-      nombre: "Carlos Rodr&iacute;guez",
-      carrera: "Medicina",
-      testimonio: "Participar en los seminarios de investigaci&oacute;n me ha abierto las puertas a oportunidades que nunca imagin&eacute;. &iexcl;Es incre&iacute;ble c&oacute;mo estos eventos pueden cambiar tu trayectoria!",
-      imagen: "https://randomuser.me/api/portraits/men/1.jpg",
-      estrellas: 5
+        nombre: "Carlos Rodríguez",
+        carrera: "Medicina",
+        testimonio: "Gracias a los congresos de investigación en la UdeC, he podido conectarme con investigadores nacionales e internacionales. Estas experiencias han transformado mis metas profesionales.",
+        imagen: "https://randomuser.me/api/portraits/men/1.jpg",
+        estrellas: 5
     },
     {
-      nombre: "Laura Mart&iacute;nez",
-      carrera: "Dise&ntilde;o Gr&aacute;fico",
-      testimonio: "Las exposiciones de arte y los talleres creativos han sido fundamentales para mi crecimiento como dise&ntilde;adora. He podido mostrar mi trabajo y recibir feedback valioso.",
-      imagen: "https://randomuser.me/api/portraits/women/2.jpg",
-      estrellas: 4
+        nombre: "Laura Martínez",
+        carrera: "Diseño Gráfico",
+        testimonio: "Los talleres artísticos y las exposiciones organizadas por la UdeC han sido esenciales para mi desarrollo creativo. Estos eventos me han dado la oportunidad de mostrar mi trabajo y crecer como profesional.",
+        imagen: "https://randomuser.me/api/portraits/women/2.jpg",
+        estrellas: 4
     }
-  ];
+];
+
 
   const handleSelect = (selectedIndex) => {
     setIndex(selectedIndex);

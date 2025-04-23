@@ -16,7 +16,7 @@
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
   height: 400px;
   display: flex;
   flex-direction: column;
@@ -26,7 +26,7 @@
 
 .evento-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .evento-card-inner {
@@ -172,10 +172,12 @@
 .evento-card .btn-suscribir {
   background-color: #4CAF50;
   color: white;
+  transition: all 0.3s ease;
 }
 
 .evento-card .btn-suscribir:hover {
   background-color: #45a049;
+  transform: translateY(-2px);
 }
 
 .evento-card .btn-cancelar {
@@ -584,3 +586,190 @@ main {
   text-align: center;
   font-size: 0.9rem;
 }
+
+.evento-detalles p {
+  display: flex;
+  align-items: center;
+}
+
+@keyframes moveToProfile {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.8) translateY(-100px);
+  }
+  100% {
+    transform: scale(0) translateY(-200px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn-suscribir.animating {
+  animation: pulse 1s;
+}
+
+.animating {
+  animation: pulse 1s;
+}
+
+.evento-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.evento-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.evento-card .card-img-top {
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 3px solid #4CAF50;
+}
+
+.evento-card .card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.evento-card .card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2e7d32;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.evento-card .card-text {
+  flex-grow: 1;
+  color: #555;
+  font-size: 0.95rem;
+  text-align: justify;
+}
+
+.evento-detalles {
+  margin-top: 1rem;
+  background-color: #f1f8f4;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: #2e7d32;
+}
+
+.evento-detalles p {
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.button-container {
+  margin-top: 1.2rem;
+  position: relative;
+}
+
+.btn-suscribir,
+.btn-cancelar {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.btn-suscribir {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-suscribir:hover {
+  background-color: #43a047;
+  transform: translateY(-2px);
+}
+
+.btn-cancelar {
+  background-color: white;
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+}
+
+.btn-cancelar:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  padding: 0.4em 0.7em;
+  font-size: 0.8rem;
+  border-radius: 50px;
+}
+
+.evento-card .button-container.mt-3 {
+  padding-top: 0.75rem;
+  width: 100%;
+  position: relative;
+  display: flex
+;
+  flex-direction: column;
+  background-color: white;
+  align-items: stretch;
+  border: none;
+}
+
+.evento-card .btn-suscribir {
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.evento-card .btn-suscribir.btn-cancelar {
+  border: 2px solid #dc3545;
+  color: #dc3545;
+}
+
+.evento-card .btn-suscribir.btn-cancelar:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.evento-card .btn-suscribir:not(.btn-cancelar):hover {
+  background-color: #388e3c;
+  transform: scale(1.03);
+}
+
+.evento-card .button-container .badge {
+  font-size: 0.75rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 500;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+

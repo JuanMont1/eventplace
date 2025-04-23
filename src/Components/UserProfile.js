@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, updateDoc, onSnapshot, collection, getDocs } from "firebase/firestore";
 import { signOut, updatePassword } from "firebase/auth";
 import { db, auth } from "../firebase";
 import "../styles/UserProfile.css";
+import {
+  FaCalendarAlt,
+  FaCode,
+  FaUsers,
+  FaTicketAlt,
+} from "react-icons/fa";
 
-const TarjetaEvento = React.memo(({ evento, manejarDesuscripcion }) => {
+const TarjetaEvento = React.memo(({ evento, manejarDesuscripcion, contadorEventos }) => {
   const navigate = useNavigate();
 
   return (
@@ -14,12 +20,13 @@ const TarjetaEvento = React.memo(({ evento, manejarDesuscripcion }) => {
       <div className="evento-imagen" style={{ backgroundImage: `url(${evento.imagen})` }}></div>
       <div className="evento-contenido">
         <h3>{evento.nombre}</h3>
-        <p><i className="fas fa-calendar-alt"></i> {evento.fecha}</p>
-        <p><i className="fas fa-tag"></i> {evento.categoria}</p>
-        <p><i className="fas fa-university"></i> {evento.facultad}</p>
+        <p><FaCalendarAlt /> {evento.fecha}</p>
+        <p><FaCode /> {evento.categoria}</p>
+        <p><FaUsers /> <strong>{contadorEventos[evento.id] || 0}</strong> suscripciones</p>
+        <p><FaTicketAlt /> <strong>{evento.cuposDisponibles}</strong> cupos disponibles</p>
         <div className="evento-acciones">
           <button onClick={() => manejarDesuscripcion(evento.id)} className="btn-desuscribir">
-            Desuscribirse
+            Cancelar Suscripción
           </button>
           <button onClick={() => navigate(`/foro/${evento.id}`)} className="btn-foro">
             Ir al Foro
@@ -73,6 +80,22 @@ const UserProfile = () => {
   const { userData, loading, error, suscripciones, setSuscripciones } = useUserData(user);
   const [editMode, setEditMode] = useState(false);
   const [newName, setNewName] = useState("");
+  const [newSuscripcion, setNewSuscripcion] = useState(null);
+  const [contadorEventos, setContadorEventos] = useState({});
+
+  useEffect(() => {
+    // Fetch contadorEventos from Firestore
+    const fetchContadorEventos = async () => {
+      const eventosRef = collection(db, 'eventos');
+      const eventosSnapshot = await getDocs(eventosRef);
+      const contadorData = {};
+      eventosSnapshot.forEach(doc => {
+        contadorData[doc.id] = doc.data().contadorSuscripciones || 0;
+      });
+      setContadorEventos(contadorData);
+    };
+    fetchContadorEventos();
+  }, []);
 
   const manejarDesuscripcion = useCallback(async (eventoId) => {
     try {
@@ -80,10 +103,23 @@ const UserProfile = () => {
       const userRef = doc(db, "users", user.uid);
       await updateDoc(userRef, { suscripciones: newSuscripciones });
       setSuscripciones(newSuscripciones);
+
+      // Update contadorEventos
+      setContadorEventos(prev => ({
+        ...prev,
+        [eventoId]: (prev[eventoId] || 1) - 1
+      }));
+
+      // Update Firestore
+      const eventoRef = doc(db, "eventos", eventoId);
+      await updateDoc(eventoRef, {
+        contadorSuscripciones: contadorEventos[eventoId] - 1,
+        cuposDisponibles: (await getDoc(eventoRef)).data().cuposDisponibles + 1
+      });
     } catch (error) {
       console.error("Error al desuscribirse del evento:", error);
     }
-  }, [suscripciones, user, setSuscripciones]);
+  }, [suscripciones, user, setSuscripciones, contadorEventos]);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -108,6 +144,17 @@ const UserProfile = () => {
       console.error("Error updating profile:", error);
     }
   }, [userData, newName]);
+
+  const manejarSuscripcion = useCallback((evento) => {
+    setNewSuscripcion(evento);
+  }, []);
+
+  useEffect(() => {
+    if (newSuscripcion) {
+      setSuscripciones(prev => [...prev, newSuscripcion]);
+      setNewSuscripcion(null);
+    }
+  }, [newSuscripcion, setSuscripciones]);
 
   const sortedSuscripciones = useMemo(() => 
     [...suscripciones].sort((a, b) => new Date(a.fecha) - new Date(b.fecha)),
@@ -134,6 +181,7 @@ const UserProfile = () => {
         <EventosSuscritos 
           suscripciones={sortedSuscripciones}
           manejarDesuscripcion={manejarDesuscripcion}
+          contadorEventos={contadorEventos}
         />
       </main>
     </div>
@@ -193,7 +241,7 @@ const UserActions = React.memo(() => (
   </section>
 ));
 
-const EventosSuscritos = React.memo(({ suscripciones, manejarDesuscripcion }) => (
+const EventosSuscritos = React.memo(({ suscripciones, manejarDesuscripcion, contadorEventos }) => (
   <section className="eventos-suscritos">
     <h2>Eventos Suscritos</h2>
     <div className="eventos-grid">
@@ -203,6 +251,7 @@ const EventosSuscritos = React.memo(({ suscripciones, manejarDesuscripcion }) =>
             key={evento.id}
             evento={evento}
             manejarDesuscripcion={manejarDesuscripcion}
+            contadorEventos={contadorEventos}
           />
         ))
       ) : (

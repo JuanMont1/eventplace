@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Table, Button, Tabs, Tab, Row, Col, Form } from "react-bootstrap";
+import { Container, Table, Button, Tabs, Tab, Row, Col, Form, Modal } from "react-bootstrap";
 import { db } from "../firebase";
 import {
   collection,
@@ -55,12 +55,17 @@ const GestionEventos = () => {
     icono: 'faBullhorn'
   });
 
+  const [showSuscritosModal, setShowSuscritosModal] = useState(false);
+  const [usuariosSuscritos, setUsuariosSuscritos] = useState([]);
+  const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
+
   const fetchEventos = async () => {
     try {
       const eventosSnapshot = await getDocs(collection(db, "eventos"));
       const eventosData = eventosSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
+        cuposDisponibles: doc.data().cuposDisponibles || 0,
       }));
       setEventos(eventosData);
     } catch (error) {
@@ -302,6 +307,23 @@ const GestionEventos = () => {
     }
   };
 
+  const handleVerSuscritos = async (evento) => {
+    setEventoSeleccionado(evento);
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("suscripciones", "array-contains", { id: evento.id }));
+      const querySnapshot = await getDocs(q);
+      const usuarios = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setUsuariosSuscritos(usuarios);
+      setShowSuscritosModal(true);
+    } catch (error) {
+      console.error("Error al obtener usuarios suscritos:", error);
+    }
+  };
+
   return (
     <Container style={{ paddingTop: "250px" }}>
       <h2 className="my-4">Gestión de Eventos</h2>
@@ -334,6 +356,9 @@ const GestionEventos = () => {
                       <FontAwesomeIcon icon={faTag} /> {evento.categoria}
                     </span>
                     <p className="card-text">{evento.descripcion}</p>
+                    <p className="cupos-disponibles">
+                      Cupos disponibles: {evento.cuposDisponibles}
+                    </p>
                   </div>
                 </div>
                 <div className="button-container mt-2">
@@ -348,6 +373,12 @@ const GestionEventos = () => {
                     onClick={() => handleEliminar(evento)}
                   >
                     Eliminar
+                  </Button>
+                  <Button
+                    variant="info"
+                    onClick={() => handleVerSuscritos(evento)}
+                  >
+                    Ver Suscritos
                   </Button>
                 </div>
               </Col>
@@ -500,6 +531,29 @@ const GestionEventos = () => {
         handleEditarProximoChange={handleEditarProximoChange}
         onConfirm={confirmarEditarProximo}
       />
+
+      {/* Modal para mostrar usuarios suscritos */}
+      <Modal show={showSuscritosModal} onHide={() => setShowSuscritosModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Usuarios Suscritos - {eventoSeleccionado?.nombre}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {usuariosSuscritos.length > 0 ? (
+            <ul>
+              {usuariosSuscritos.map(usuario => (
+                <li key={usuario.id}>{usuario.name} - {usuario.email}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay usuarios suscritos a este evento.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowSuscritosModal(false)}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

@@ -13,27 +13,34 @@ const AgregarEvento = () => {
     facultad: "",
     imagen: "",
     descripcion: "",
+    cuposDisponibles: 0, // Nuevo campo para cupos disponibles
   });
   const navigate = useNavigate();
 
-  const { nombre, categoria, fecha, facultad, imagen, descripcion } = evento;
+  const { nombre, categoria, fecha, facultad, imagen, descripcion, cuposDisponibles } = evento;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEvento((prevEvento) => ({
       ...prevEvento,
-      [name]: value,
+      [name]: name === "cuposDisponibles" ? parseInt(value, 10) : value,
     }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const docRef = await addDoc(collection(db, "eventos"), evento);
+      const eventoParaGuardar = {
+        ...evento,
+        cuposDisponibles: parseInt(evento.cuposDisponibles, 10),
+        fechaCreacion: new Date(),
+      };
+
+      const docRef = await addDoc(collection(db, "eventos"), eventoParaGuardar);
       console.log("Evento agregado con ID: ", docRef.id);
       
       // Guardar en eventos pasados
-      await guardarEventoPasado({...evento, id: docRef.id});
+      await guardarEventoPasado({...eventoParaGuardar, id: docRef.id});
       
       alert("Evento agregado con éxito");
       navigate("/admin/eventos");
@@ -124,6 +131,17 @@ const AgregarEvento = () => {
               name="descripcion"
               value={descripcion}
               onChange={handleChange}
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Cupos Disponibles</Form.Label>
+            <Form.Control
+              type="number"
+              name="cuposDisponibles"
+              value={cuposDisponibles}
+              onChange={handleChange}
+              min="0"
               required
             />
           </Form.Group>
