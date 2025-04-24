@@ -77,12 +77,19 @@ export const EventosProvider = ({ children }) => {
     }
   };
 
+  const getRecomendaciones = (intereses, suscripciones) => {
+    return eventosDisponibles.filter(evento => 
+      intereses.includes(evento.categoria) && !suscripciones.some(s => s.id === evento.id)
+    ).slice(0, 3);
+  };
+
   return (
     <EventosContext.Provider value={{
       eventosDisponibles,
       suscripciones,
       toggleSuscripcion,
-      user
+      user,
+      getRecomendaciones,
     }}>
       {children}
     </EventosContext.Provider>

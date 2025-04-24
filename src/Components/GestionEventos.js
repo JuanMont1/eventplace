@@ -359,9 +359,7 @@ const GestionEventos = () => {
                     <p className="cupos-disponibles">
                       Cupos disponibles: {evento.cuposDisponibles}
                     </p>
-                  </div>
-                </div>
-                <div className="button-container mt-2">
+                    <div className="button-container mt-2">
                   <Button
                     variant="primary"
                     onClick={() => handleEditar(evento)}
@@ -381,6 +379,9 @@ const GestionEventos = () => {
                     Ver Suscritos
                   </Button>
                 </div>
+                  </div>
+                </div>
+                
               </Col>
             ))}
           </Row>

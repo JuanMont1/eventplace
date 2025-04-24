@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Container,
   Row,
@@ -20,15 +20,16 @@ import {
   FaTicketAlt,
 } from "react-icons/fa";
 import { db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import "../styles/MisSuscripciones.css";
+import { logros } from "../logros";
 
 const categories = [
   { id: 1, name: "Académico", icon: <FaGraduationCap />, color: "#4285F4" },
   { id: 2, name: "Cultural", icon: <FaMusic />, color: "#EA4335" },
   { id: 3, name: "Deportivo", icon: <FaFootballBall />, color: "#34A853" },
   { id: 4, name: "Artístico", icon: <FaPalette />, color: "#FBBC05" },
-  { id: 5, name: "Tecnología", icon: <FaCode />, color: "#FF6D01" },
+  { id: 5, name: "Tecnológico", icon: <FaCode />, color: "#FF6D01" },
 ];
 
 const EventosDisponibles = ({
@@ -42,8 +43,10 @@ const EventosDisponibles = ({
   contadorEventos,
   eventosDisponibles,
   setEventosDisponibles,
+  currentUser,
 }) => {
   const [animatingEventId, setAnimatingEventId] = useState(null);
+  const [suscripciones, setSuscripciones] = useState([]);
 
   const eventosToShow = useMemo(() => {
     return eventosDisponibles.filter(
@@ -53,11 +56,53 @@ const EventosDisponibles = ({
     );
   }, [eventosDisponibles, categoriaSeleccionada, filtro]);
 
-  const handleToggleSuscripcion = (evento) => {
-    toggleSuscripcion(evento);
+  useEffect(() => {
+    // Actualizar suscripciones cuando cambian los eventos disponibles
+    setSuscripciones(eventosDisponibles.filter(e => isSuscrito(e.id)));
+  }, [eventosDisponibles, isSuscrito]);
+
+  useEffect(() => {
+    // Verificar logros cada vez que cambian las suscripciones
+    checkLogros(suscripciones);
+  }, [suscripciones]);
+
+  const checkLogros = async (suscripciones) => {
+    if (!currentUser) return;
+
+    const userRef = doc(db, "users", currentUser.uid);
+    const logrosObtenidos = [];
+
+    for (const logro of logros) {
+      if (logro.condicion(suscripciones)) {
+        logrosObtenidos.push(logro.id);
+      }
+    }
+
+    if (logrosObtenidos.length > 0) {
+      try {
+        await updateDoc(userRef, {
+          logros: arrayUnion(...logrosObtenidos)
+        });
+        console.log("Nuevos logros obtenidos:", logrosObtenidos);
+      } catch (error) {
+        console.error("Error al actualizar logros:", error);
+      }
+    }
+  };
+
+  const handleToggleSuscripcion = async (evento) => {
+    await toggleSuscripcion(evento);
+    
+    // Actualizar el estado local de suscripciones
+    setSuscripciones(prev => 
+      isSuscrito(evento.id)
+        ? [...prev, evento]
+        : prev.filter(e => e.id !== evento.id)
+    );
+
     if (!isSuscrito(evento.id)) {
       setAnimatingEventId(evento.id);
-      setTimeout(() => setAnimatingEventId(null), 1000); // Animation duration
+      setTimeout(() => setAnimatingEventId(null), 1000);
     }
   };
 
