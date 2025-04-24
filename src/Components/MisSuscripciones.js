@@ -9,12 +9,10 @@ import {
 import "../styles/MisSuscripciones.css";
 import { BarraNavegacion } from '../Components/BarraNavegacion';
 import { auth, db } from '../firebase';
-import { doc, getDoc, setDoc, onSnapshot, collection, getDocs, updateDoc, increment } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, collection, getDocs, updateDoc } from "firebase/firestore";
 import EventosDisponibles from '../Components/EventosDisponibles'; 
 import PieDePagina from "./pieDePagina";
 import EventosDestacadosSection from './EventosDestacadosSection';
-
-
 
 const MisSuscripciones = () => {
   const [eventosDisponibles, setEventosDisponibles] = useState([]);
@@ -22,41 +20,6 @@ const MisSuscripciones = () => {
   const [filtro, setFiltro] = useState("");
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [user, setUser] = useState(null);
-  const [contadorEventos, setContadorEventos] = useState({});
-
-  const sincronizarContadores = useCallback(async () => {
-    if (!user) return;
-
-    const contadorRef = doc(db, "contadores", "eventos");
-    const eventosRef = collection(db, "eventos");
-
-    try {
-      const eventosSnapshot = await getDocs(eventosRef);
-      let newContadores = {};
-
-      // Inicializar contadores para todos los eventos
-      eventosSnapshot.forEach((doc) => {
-        newContadores[doc.id] = 0;
-      });
-
-      // Contar suscripciones
-      const querySnapshot = await getDocs(collection(db, "users"));
-      querySnapshot.forEach((userDoc) => {
-        const userSuscripciones = userDoc.data().suscripciones || [];
-        userSuscripciones.forEach(evento => {
-          if (newContadores.hasOwnProperty(evento.id)) {
-            newContadores[evento.id]++;
-          }
-        });
-      });
-
-      await setDoc(contadorRef, newContadores);
-      setContadorEventos(newContadores);  // Actualiza el estado local
-      console.log("Contadores sincronizados:", newContadores);
-    } catch (error) {
-      console.error("Error al sincronizar contadores:", error);
-    }
-  }, [user]);
 
   useEffect(() => {
     const fetchEventos = async () => {
@@ -65,7 +28,8 @@ const MisSuscripciones = () => {
         const eventosSnapshot = await getDocs(eventosCollection);
         const eventosData = eventosSnapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
+          contadorSuscripciones: Object.keys(doc.data().suscripciones || {}).length
         }));
         setEventosDisponibles(eventosData);
       } catch (error) {
@@ -84,7 +48,6 @@ const MisSuscripciones = () => {
             const userSuscripciones = doc.data().suscripciones || [];
             setSuscripciones(userSuscripciones);
             console.log("Suscripciones actualizadas:", userSuscripciones);
-            sincronizarContadores();
           } else {
             setSuscripciones([]);
           }
@@ -95,27 +58,7 @@ const MisSuscripciones = () => {
       }
     });
 
-    const contadorRef = doc(db, "contadores", "eventos");
-    const unsubscribeContador = onSnapshot(contadorRef, (doc) => {
-      if (doc.exists()) {
-        const nuevosContadores = doc.data();
-        
-        Object.keys(nuevosContadores).forEach(key => {
-          if (nuevosContadores[key] < 0) {
-            nuevosContadores[key] = 0;
-          }
-        });
-        setContadorEventos(nuevosContadores);
-        console.log("Contadores actualizados desde Firestore:", nuevosContadores);
-      } else {
-        setContadorEventos({});
-      }
-    });
-
-    return () => {
-      unsubscribe();
-      unsubscribeContador();
-    };
+    return () => unsubscribe();
   }, []); 
 
   const toggleSuscripcion = useCallback(async (evento) => {
@@ -126,42 +69,46 @@ const MisSuscripciones = () => {
 
     const userRef = doc(db, "users", user.uid);
     const eventoRef = doc(db, "eventos", evento.id);
-    const contadorRef = doc(db, "contadores", "eventos");
 
     try {
+      const eventoDoc = await getDoc(eventoRef);
+      const eventoData = eventoDoc.data();
+      const suscripcionesEvento = eventoData.suscripciones || {};
       let newSuscripciones;
       let cuposIncrement;
 
-      if (suscripciones.some(e => e.id === evento.id)) {
+      if (suscripcionesEvento[user.uid]) {
         // Cancelar suscripción
+        delete suscripcionesEvento[user.uid];
         newSuscripciones = suscripciones.filter(e => e.id !== evento.id);
         cuposIncrement = 1;
       } else {
         // Suscribirse
-        if (evento.cuposDisponibles <= 0) {
+        if (eventoData.cuposDisponibles <= 0) {
           alert("Lo sentimos, no hay cupos disponibles para este evento.");
           return;
         }
+        suscripcionesEvento[user.uid] = true;
         newSuscripciones = [...suscripciones, evento];
         cuposIncrement = -1;
       }
 
       await updateDoc(userRef, { suscripciones: newSuscripciones });
-      await updateDoc(eventoRef, { cuposDisponibles: increment(cuposIncrement) });
-      await updateDoc(contadorRef, { [evento.id]: increment(cuposIncrement * -1) });
+      await updateDoc(eventoRef, { 
+        suscripciones: suscripcionesEvento,
+        cuposDisponibles: eventoData.cuposDisponibles + cuposIncrement
+      });
 
       // Actualizar estados locales
       setSuscripciones(newSuscripciones);
-      setContadorEventos(prev => ({
-        ...prev,
-        [evento.id]: (prev[evento.id] || 0) + (cuposIncrement * -1)
-      }));
-
-      // Actualizar cupos disponibles en el estado de eventos
       setEventosDisponibles(prevEventos => 
         prevEventos.map(e => 
           e.id === evento.id 
-            ? {...e, cuposDisponibles: e.cuposDisponibles + cuposIncrement} 
+            ? {
+                ...e, 
+                cuposDisponibles: e.cuposDisponibles + cuposIncrement,
+                contadorSuscripciones: Object.keys(suscripcionesEvento).length
+              } 
             : e
         )
       );
@@ -170,7 +117,7 @@ const MisSuscripciones = () => {
       console.error("Error al actualizar suscripciones:", err);
       alert("Error al actualizar suscripciones. Por favor, inténtalo de nuevo.");
     }
-  }, [user, suscripciones, setContadorEventos, setEventosDisponibles]);
+  }, [user, suscripciones, setEventosDisponibles]);
 
   const eventosFiltrados = useMemo(() => {
     return eventosDisponibles.filter(
@@ -206,9 +153,9 @@ const MisSuscripciones = () => {
         setFiltro={setFiltro}
         isSuscrito={isSuscrito}
         toggleSuscripcion={toggleSuscripcion}
-        contadorEventos={contadorEventos} 
         eventosDisponibles={eventosDisponibles}
         setEventosDisponibles={setEventosDisponibles}
+        currentUser={user}
       />
 
       <VideoPromoSection />
