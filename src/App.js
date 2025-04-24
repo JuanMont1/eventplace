@@ -21,6 +21,7 @@ import AgregarEvento from './Components/AgregarEvento';
 import EventosDisponibles from './Components/EventosDisponibles';
 import GestionEventos from './Components/GestionEventos';
 import TodosLosAnuncios from './Components/TodosLosAnuncios';
+import { EventosProvider } from './contexts/EventosContext';
 
 // rutas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -128,7 +129,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <EventosProvider>
+          <AppContent />
+        </EventosProvider>
       </AuthProvider>
     </Router>
   );
