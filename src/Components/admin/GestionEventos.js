@@ -124,27 +124,26 @@ const GestionEventos = () => {
   };
 
   const eliminarSuscripcionesDeUsuarios = async (eventoId) => {
-    const q = query(
-      collection(db, "users"),
-      where("suscripciones", "array-contains", { id: eventoId })
-    );
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("suscripciones", "array-contains", { id: eventoId }));
     const snapshot = await getDocs(q);
-
+  
     const batch = writeBatch(db);
     snapshot.forEach((docSnap) => {
-      const ref = doc(db, "users", docSnap.id);
-      const nuevasSuscripciones = docSnap
-        .data()
-        .suscripciones.filter((s) => s.id !== eventoId);
-      batch.update(ref, { suscripciones: nuevasSuscripciones });
+      const userRef = doc(db, "users", docSnap.id);
+      const nuevasSuscripciones = docSnap.data().suscripciones.filter(s => s.id !== eventoId);
+      batch.update(userRef, { suscripciones: nuevasSuscripciones });
     });
+  
     await batch.commit();
   };
+  
 
   const handleEditar = (evento) => {
     setEventoAEditar({ ...evento });
     setShowEditModal(true);
   };
+  
 
   const handleEditarChange = (e) => {
     const { name, value } = e.target;
@@ -154,19 +153,31 @@ const GestionEventos = () => {
   const confirmarEditar = async () => {
     if (eventoAEditar) {
       try {
-        await updateDoc(doc(db, "eventos", eventoAEditar.id), {
-          nombre: eventoAEditar.nombre,
-          categoria: eventoAEditar.categoria,
-          fecha: eventoAEditar.fecha,
-        });
+        // Crear un objeto con solo los campos que tienen valores definidos
+        const camposActualizados = Object.entries(eventoAEditar).reduce((acc, [key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            acc[key] = value;
+          }
+          return acc;
+        }, {});
+  
+        // Asegurarse de que cuposDisponibles sea un número
+        if ('cuposDisponibles' in camposActualizados) {
+          camposActualizados.cuposDisponibles = Number(camposActualizados.cuposDisponibles);
+        }
+  
+        await updateDoc(doc(db, "eventos", eventoAEditar.id), camposActualizados);
         await fetchEventos();
         setShowEditModal(false);
         alert("Evento actualizado con éxito");
       } catch (error) {
         console.error("Error al editar el evento:", error);
+        alert("Hubo un error al editar el evento. Por favor, inténtalo de nuevo.");
       }
     }
   };
+  
+  
 
   const handleNuevoEventoChange = (e) => {
     const { name, value } = e.target;

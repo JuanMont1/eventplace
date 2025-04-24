@@ -21,6 +21,17 @@ const MisSuscripciones = () => {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [user, setUser] = useState(null);
 
+  const verificarEventosExistentes = useCallback(async (suscripciones) => {
+    const eventosExistentes = await Promise.all(
+      suscripciones.map(async (evento) => {
+        const eventoRef = doc(db, "eventos", evento.id);
+        const eventoDoc = await getDoc(eventoRef);
+        return eventoDoc.exists() ? evento : null;
+      })
+    );
+    return eventosExistentes.filter(evento => evento !== null);
+  }, []);
+
   useEffect(() => {
     const fetchEventos = async () => {
       try {
@@ -43,11 +54,18 @@ const MisSuscripciones = () => {
       setUser(currentUser);
       if (currentUser) {
         const userRef = doc(db, "users", currentUser.uid);
-        const unsubscribeUser = onSnapshot(userRef, (doc) => {
+        const unsubscribeUser = onSnapshot(userRef, async (doc) => {
           if (doc.exists()) {
             const userSuscripciones = doc.data().suscripciones || [];
-            setSuscripciones(userSuscripciones);
-            console.log("Suscripciones actualizadas:", userSuscripciones);
+            const suscripcionesActualizadas = await verificarEventosExistentes(userSuscripciones);
+            
+            // Si hay diferencias, actualizar el documento del usuario
+            if (suscripcionesActualizadas.length !== userSuscripciones.length) {
+              await updateDoc(userRef, { suscripciones: suscripcionesActualizadas });
+            }
+            
+            setSuscripciones(suscripcionesActualizadas);
+            console.log("Suscripciones actualizadas:", suscripcionesActualizadas);
           } else {
             setSuscripciones([]);
           }
@@ -59,7 +77,7 @@ const MisSuscripciones = () => {
     });
 
     return () => unsubscribe();
-  }, []); 
+  }, [verificarEventosExistentes]); 
 
   const toggleSuscripcion = useCallback(async (evento) => {
     if (!user) {

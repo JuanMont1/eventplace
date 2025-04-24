@@ -58,13 +58,8 @@ const EventosDisponibles = ({
 
   useEffect(() => {
     // Actualizar suscripciones cuando cambian los eventos disponibles
-    setSuscripciones(prevSuscripciones => 
-      prevSuscripciones.map(suscripcion => {
-        const eventoActualizado = eventosDisponibles.find(e => e.id === suscripcion.id);
-        return eventoActualizado || suscripcion;
-      })
-    );
-  }, [eventosDisponibles]);
+    setSuscripciones(eventosDisponibles.filter(e => isSuscrito(e.id)));
+  }, [eventosDisponibles, isSuscrito]);
 
   useEffect(() => {
     // Verificar logros cada vez que cambian las suscripciones
@@ -99,15 +94,11 @@ const EventosDisponibles = ({
     await toggleSuscripcion(evento);
     
     // Actualizar el estado local de suscripciones
-    setSuscripciones(prevSuscripciones => {
-      if (isSuscrito(evento.id)) {
-        // Si ya está suscrito, lo removemos
-        return prevSuscripciones.filter(e => e.id !== evento.id);
-      } else {
-        // Si no está suscrito, lo añadimos
-        return [...prevSuscripciones, evento];
-      }
-    });
+    setSuscripciones(prev => 
+      isSuscrito(evento.id)
+        ? [...prev, evento]
+        : prev.filter(e => e.id !== evento.id)
+    );
 
     if (!isSuscrito(evento.id)) {
       setAnimatingEventId(evento.id);
@@ -218,12 +209,3 @@ const EventosDisponibles = ({
                   </div>
                 </Card.Body>
               </Card>
-            </Col>
-          ))}
-        </Row>
-      </Container>
-    </section>
-  );
-};
-
-export default EventosDisponibles;
