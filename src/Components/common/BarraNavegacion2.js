@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Navbar, Container, Nav, NavDropdown, Button } from "react-bootstrap";
-import logo from "../archivos/img/logo.png";
+import logo from "../../archivos/img/logo.png";
 import { FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import "../styles/BarraNavegacion.css";
+import { useAuth } from "../../contexts/AuthContext";
+import "../../styles/BarraNavegacion.css";
 
 export const BarraNavegacion2 = () => {
   const [desplazado, setDesplazado] = useState(false);

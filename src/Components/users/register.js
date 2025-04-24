@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import '../styles/Login.css';
+import '../../styles/Login.css';
 import { useNavigate } from 'react-router-dom';
-import udecLogo from '../archivos/img/logoyu.png';
+import udecLogo from '../../archivos/img/logoyu.png';
 
 const Registro = () => {
   const navigate = useNavigate();

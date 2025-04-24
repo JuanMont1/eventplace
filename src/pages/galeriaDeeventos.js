@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase'; // Asegúrate de que esta ruta sea correcta
+import { db } from '../config/firebase'; 
 import '../styles/GaleriaEventos.css';
 
 const GaleriaEventos = () => {

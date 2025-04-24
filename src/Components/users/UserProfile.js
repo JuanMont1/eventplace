@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { useEventos } from "../contexts/EventosContext";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { useEventos } from "../../contexts/EventosContext";
 import { doc, updateDoc, onSnapshot, arrayUnion, arrayRemove } from "firebase/firestore";
 import { signOut } from "firebase/auth";
-import { db, auth } from "../firebase";
-import "../styles/UserProfile.css";
+import { db, auth } from "../../config/firebase";
+import "../../styles/UserProfile.css";
 import {
   FaCalendarAlt, FaCode, FaUsers, FaTicketAlt, FaGraduationCap, FaBuilding,
   FaClock, FaArrowLeft, FaSignOutAlt, FaEnvelope, FaCalendarCheck, FaHistory,
   FaTrophy, FaChartBar
 } from "react-icons/fa";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { logros as todosLosLogros } from "../logros";
+import { logros as todosLosLogros } from "../../Components/users/logros";
 
 const TarjetaEvento = React.memo(({ evento, manejarDesuscripcion }) => {
   const navigate = useNavigate();

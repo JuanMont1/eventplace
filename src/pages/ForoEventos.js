@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Button, Form, Badge, Modal, Dropdown } from 'react-bootstrap';
-import { db, auth } from '../firebase';
+import { db, auth } from '../config/firebase';
 import { collection, addDoc, query, orderBy, onSnapshot, updateDoc, doc, arrayUnion, arrayRemove, deleteDoc, where } from 'firebase/firestore';
 import '../styles/ForoEventos.css';
 

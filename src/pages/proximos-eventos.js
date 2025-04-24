@@ -3,7 +3,7 @@ import { Container, Row, Col, Button, Form, Image } from "react-bootstrap";
 import { FaClock, FaMapMarkerAlt, FaSearch, FaArrowLeft, FaTag } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../styles/ProximosEventos.css";
-import { db } from "../firebase";
+import { db } from "../config/firebase";
 import { collection, getDocs, onSnapshot } from "firebase/firestore";
 
 const ProximosEventos = () => {

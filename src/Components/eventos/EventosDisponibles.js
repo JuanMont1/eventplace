@@ -19,10 +19,10 @@ import {
   FaSearch,
   FaTicketAlt,
 } from "react-icons/fa";
-import { db } from "../firebase";
+import { db } from '../../config/firebase';
 import { doc, updateDoc, arrayUnion } from "firebase/firestore";
-import "../styles/MisSuscripciones.css";
-import { logros } from "../logros";
+import "../../styles/MisSuscripciones.css";
+import { logros } from "../users/logros";
 
 const categories = [
   { id: 1, name: "Académico", icon: <FaGraduationCap />, color: "#4285F4" },

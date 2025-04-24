@@ -1,7 +1,7 @@
 import React from 'react';
-import CalendarSection from "./CalendarSection";
-import Slider from "./Slider";
-import Eventos from './Eventos';
+import CalendarSection from "../Components/calendario/CalendarSection";
+import Slider from "../Components/Slider";
+import Eventos from "../Components/eventos/Eventos";
 
 const PaginaCalendario = () => {
   return (

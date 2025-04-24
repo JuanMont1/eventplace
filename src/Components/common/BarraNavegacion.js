@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Navbar, Container, Nav, NavDropdown, Button } from "react-bootstrap";
-import logo from "../archivos/img/logo.png";
+import logo from "../../archivos/img/logo.png";
 import { FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import "../styles/BarraNavegacion.css";
-import { auth, db } from "../firebase";
+import "../../styles/BarraNavegacion.css";
+import { auth, db } from "../../config/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { BarraNavegacionAdmin } from "./BarraNavegacionAdmin";
+import { BarraNavegacionAdmin } from "../common/BarraNavegacionAdmin";
 
 export const BarraNavegacion = () => {
   const [desplazado, setDesplazado] = useState(false);

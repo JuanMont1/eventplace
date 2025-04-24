@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Table, Button, Tabs, Tab, Row, Col, Form, Modal } from "react-bootstrap";
-import { db } from "../firebase";
+import { db } from '../../config/firebase';
 import {
   collection,
   getDocs,
@@ -12,8 +12,8 @@ import {
   writeBatch,
   addDoc,
 } from "firebase/firestore";
-import AgregarProximoEventoForm from "./AgregarProximoEventoForm";
-import AgregarEvento from "./AgregarEvento";
+import AgregarProximoEventoForm from "../admin/AgregarProximoEventoForm";
+import AgregarEvento from "../admin/AgregarEvento";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUsers,
@@ -22,10 +22,10 @@ import {
   faBullhorn,
   faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
-import ModalEliminarEvento from "./ModalEliminarEvento";
-import ModalEditarEvento from "./ModalEditarEvento";
-import ModalEditarProximoEvento from "./ModalEditarProximoEvento";
-import { guardarEventoPasado } from './eventosService';
+import ModalEliminarEvento from "../admin/ModalEliminarEvento";
+import ModalEditarEvento from "../admin/ModalEditarEvento";
+import ModalEditarProximoEvento from "../admin/ModalEditarProximoEvento";
+import { guardarEventoPasado } from '../../services/eventosService';
 
 const GestionEventos = () => {
   const [eventos, setEventos] = useState([]);

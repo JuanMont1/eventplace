@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db } from '../config/firebase';
 import { FaBullhorn, FaCalendarAlt, FaUsers, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../styles/TodosLosAnuncios.css';

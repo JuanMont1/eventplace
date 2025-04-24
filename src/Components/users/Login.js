@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { auth, googleProvider, db, ADMIN_EMAILS } from '../firebase'; 
-import udecLogo from '../archivos/img/logoyu.png';
-import '../styles/Login.css';
-import { useAuth } from '../contexts/AuthContext';
+import { auth, googleProvider, db, ADMIN_EMAILS } from '../../config/firebase'; 
+import udecLogo from '../../archivos/img/logoyu.png';
+import '../../styles/Login.css';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
   const [fadeOut, setFadeOut] = useState(false);

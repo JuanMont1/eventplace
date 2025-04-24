@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/CalendarSection.css';
+import '../../styles/CalendarSection.css';
 import { FaCalendar, FaGraduationCap, FaMusic, FaFootballBall, FaPalette, FaCode } from 'react-icons/fa';
 
 const UpcomingEvents = () => {

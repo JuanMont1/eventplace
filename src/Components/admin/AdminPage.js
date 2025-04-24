@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarraNavegacionAdmin } from './BarraNavegacionAdmin';
+import { BarraNavegacionAdmin } from '../common/BarraNavegacionAdmin';
 import { Outlet } from 'react-router-dom';
 
 const AdminPage = () => {

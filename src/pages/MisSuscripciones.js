@@ -7,12 +7,12 @@ import {
   Carousel,
 } from "react-bootstrap";
 import "../styles/MisSuscripciones.css";
-import { BarraNavegacion } from '../Components/BarraNavegacion';
-import { auth, db } from '../firebase';
+import { BarraNavegacion } from '../Components/common/BarraNavegacion';
+import { auth, db } from '../config/firebase';
 import { doc, getDoc, onSnapshot, collection, getDocs, updateDoc } from "firebase/firestore";
-import EventosDisponibles from '../Components/EventosDisponibles'; 
-import PieDePagina from "./pieDePagina";
-import EventosDestacadosSection from './EventosDestacadosSection';
+import EventosDisponibles from '../Components/eventos/EventosDisponibles'; 
+import PieDePagina from "../Components/common/pieDePagina";
+import EventosDestacadosSection from '../Components/eventos/EventosDestacadosSection';
 
 const MisSuscripciones = () => {
   const [eventosDisponibles, setEventosDisponibles] = useState([]);

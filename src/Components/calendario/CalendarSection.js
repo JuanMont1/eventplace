@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaCalendarAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import "../styles/CalendarSection.css";
-import events from '../Components/DatosEventos';
+import "../../styles/CalendarSection.css";
+import events from '../eventos/DatosEventos';
 
 console.log(events);
 

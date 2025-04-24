@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { db, auth } from '../firebase';
+import { db, auth } from '../config/firebase';
 import { collection, doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
 
 const EventosContext = createContext();

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { auth, db } from "../firebase";
+import { auth, db } from "../config/firebase";
 import { doc, onSnapshot, setDoc, updateDoc, increment } from "firebase/firestore";
 
 const SuscripcionesContext = createContext();

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/pieDePagina.css'; 
+import '../../styles/pieDePagina.css'; 
 import '@fortawesome/fontawesome-free/css/all.css';
 
 const PieDePagina = () => {

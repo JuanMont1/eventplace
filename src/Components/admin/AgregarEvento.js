@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { addDoc, collection } from "firebase/firestore";
-import { db } from "../firebase";
-import { guardarEventoPasado } from './eventosService';
+import { db } from '../../config/firebase';
+import { guardarEventoPasado } from '../../services/eventosService';
 
 const AgregarEvento = () => {
   const [evento, setEvento] = useState({

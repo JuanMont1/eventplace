@@ -1,9 +1,9 @@
 import React from 'react';
 import { Navbar, Container, Nav, NavDropdown, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../archivos/img/logo.png";
-import { useAuth } from '../contexts/AuthContext';
-import '../styles/BarraNavegacion.css'; 
+import logo from "../../archivos/img/logo.png";
+import { useAuth } from '../../contexts/AuthContext';
+import '../../styles/BarraNavegacion.css'; 
 
 export const BarraNavegacionAdmin = () => {
   const { user, logout } = useAuth();
